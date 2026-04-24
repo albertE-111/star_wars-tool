@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Local config and secrets
+.env
+.env.*
+config/app_config.json
+
+# Runtime state, locks, logs
+*.log
+*.lock
+*.heartbeat.json
+*.jsonl
+support_bot_alert_state.json
+
+# Caches and generated outputs
+*.sqlite
+*.db
+*_cache.json
+market_brief_results/
+market_brief_results.txt
+*_out.txt
+*_err.txt
+_batch_*_check.txt
+_single_market_brief_check.txt
+_global_section_check.txt
+test_batch_output.txt
+config/stock_categories/backups/
