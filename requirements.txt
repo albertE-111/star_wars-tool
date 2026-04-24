@@ -1,0 +1,6 @@
+yfinance
+requests
+beautifulsoup4
+python-telegram-bot==22.6
+apscheduler
+pandas_ta

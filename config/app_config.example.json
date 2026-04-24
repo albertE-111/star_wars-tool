@@ -1,0 +1,24 @@
+{
+  "bot_token": "",
+  "support_bot_token": "",
+  "gemini_api_key": "",
+  "allowed_user_ids": "123456789",
+  "allowed_chat_ids": "",
+  "gemini_model": "gemma-3-27b-it",
+  "support_bot": {
+    "notify_chat_id": 123456789,
+    "heartbeat_timeout_seconds": 120
+  },
+  "auto_market_brief": {
+    "enabled": true,
+    "start_time": "08:15",
+    "end_time": "22:15",
+    "interval_minutes": 60,
+    "category": "",
+    "subcategory": "",
+    "with_news_summary": true,
+    "send_detailed_result_message": false,
+    "chat_id": 123456789,
+    "last_run_at": ""
+  }
+}

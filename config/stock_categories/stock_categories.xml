@@ -1,0 +1,412 @@
+<?xml version='1.0' encoding='utf-8'?>
+<stockCategories>
+  <category name="Indizes">
+    <subcategory name="Laender-Indizes">
+      <index>
+        <name>Nasdaq 100</name>
+        <land>USA</land>
+        <ticker>^NDX</ticker>
+        <ticker_usa>^NDX</ticker_usa>
+        <isin>US6311011026</isin>
+        <wkn>A0AE1X</wkn>
+      </index>
+      <index>
+        <name>S&amp;P 500</name>
+        <land>USA</land>
+        <ticker>^GSPC</ticker>
+        <ticker_usa>^GSPC</ticker_usa>
+        <isin>US78378X1072</isin>
+        <wkn>A0AET0</wkn>
+      </index>
+      <index>
+        <name>Dow Jones</name>
+        <land>USA</land>
+        <ticker>^DJI</ticker>
+        <ticker_usa>^DJI</ticker_usa>
+        <isin>US2605661048</isin>
+        <wkn>969420</wkn>
+      </index>
+      <index>
+        <name>Russell 2000</name>
+        <land>USA</land>
+        <ticker>^RUT</ticker>
+        <ticker_usa>^RUT</ticker_usa>
+        <isin>US7827001089</isin>
+        <wkn>A1EZTD</wkn>
+      </index>
+      <index>
+        <name>DAX 40</name>
+        <land>Deutschland</land>
+        <ticker>^GDAXI</ticker>
+        <ticker_eu>^GDAXI</ticker_eu>
+        <isin>DE0008469008</isin>
+        <wkn>846900</wkn>
+      </index>
+      <index>
+        <name>CAC 40</name>
+        <land>Frankreich</land>
+        <ticker>^FCHI</ticker>
+        <ticker_eu>^FCHI</ticker_eu>
+        <isin>FR0003500008</isin>
+        <wkn>969400</wkn>
+      </index>
+      <index>
+        <name>FTSE 100</name>
+        <land>UK</land>
+        <ticker>^FTSE</ticker>
+        <ticker_eu>^FTSE</ticker_eu>
+        <isin>GB0001383545</isin>
+        <wkn>969378</wkn>
+      </index>
+      <index>
+        <name>AEX</name>
+        <land>Niederlande</land>
+        <ticker>^AEX</ticker>
+        <ticker_eu>^AEX</ticker_eu>
+        <isin>NL0000000107</isin>
+        <wkn>969241</wkn>
+      </index>
+      <index>
+        <name>Nikkei 225</name>
+        <land>Japan</land>
+        <ticker>^N225</ticker>
+        <ticker_apac>^N225</ticker_apac>
+        <isin>JP9010C00002</isin>
+        <wkn>A1RRF6</wkn>
+      </index>
+      <index>
+        <name>Hang Seng</name>
+        <land>Hongkong</land>
+        <ticker>^HSI</ticker>
+        <ticker_apac>^HSI</ticker_apac>
+        <isin>HK0000004322</isin>
+        <wkn>145733</wkn>
+      </index>
+    </subcategory>
+    <subcategory name="Branchen-Indizes">
+      <index>
+        <name>MSCI World Information Tech</name>
+        <ticker>XDWT.DE</ticker>
+        <ticker_eu>XDWT.DE</ticker_eu>
+        <isin>EU000A2G9V11</isin>
+        <wkn>A2G9V1</wkn>
+        <tag>Technologie</tag>
+      </index>
+      <index>
+        <name>EURO STOXX Banks</name>
+        <ticker>LYBK.DE</ticker>
+        <ticker_eu>LYBK.DE</ticker_eu>
+        <isin>EU0009658426</isin>
+        <wkn>965842</wkn>
+        <tag>Banking</tag>
+      </index>
+      <index>
+        <name>MSCI World Energy</name>
+        <ticker>5MVW.DE</ticker>
+        <ticker_eu>5MVW.DE</ticker_eu>
+        <isin>EU000A2G9UZ5</isin>
+        <wkn>A2G9UZ</wkn>
+        <tag>Energy &amp; Oil</tag>
+      </index>
+      <index>
+        <name>MSCI World Health Care</name>
+        <ticker>LYPE.DE</ticker>
+        <ticker_eu>LYPE.DE</ticker_eu>
+        <isin>EU000A2G9V03</isin>
+        <wkn>A2G9V0</wkn>
+        <tag>Healthcare</tag>
+      </index>
+      <index>
+        <name>STOXX Europe Luxury 10</name>
+        <ticker>EXH7.DE</ticker>
+        <ticker_eu>EXH7.DE</ticker_eu>
+        <isin>CH1187488874</isin>
+        <wkn>A3DL3G</wkn>
+        <tag>Luxury Goods</tag>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Einzelaktien">
+    <subcategory name="Big Tech">
+      <index>
+        <name>Nvidia</name>
+        <ticker>NVDA</ticker>
+        <ticker_usa>NVDA</ticker_usa>
+        <isin>US67066G1040</isin>
+        <wkn>918422</wkn>
+        <description>Das Herz der KI. Extrem volatil, perfekt fuer Hebel-Trades.</description>
+      </index>
+      <index>
+        <name>Tesla</name>
+        <ticker>TSLA</ticker>
+        <ticker_usa>TSLA</ticker_usa>
+        <isin>US88160R1014</isin>
+        <wkn>A1CX3T</wkn>
+        <description>Die "Trader-Aktie" schlechthin. Reagiert extrem auf News von Elon Musk.</description>
+      </index>
+      <index>
+        <name>Apple</name>
+        <ticker>AAPL</ticker>
+        <ticker_usa>AAPL</ticker_usa>
+        <isin>US0378331005</isin>
+        <wkn>865985</wkn>
+        <description>Oft stabiler, aber bei iPhone-Releases oder KI-Updates sehr trendstark.</description>
+      </index>
+      <index>
+        <name>Microsoft</name>
+        <ticker>MSFT</ticker>
+        <ticker_usa>MSFT</ticker_usa>
+        <isin>US5949181045</isin>
+        <wkn>870747</wkn>
+        <description>Der Profiteur von Software-KI (Copilot).</description>
+      </index>
+      <index>
+        <name>Meta Platforms</name>
+        <ticker>META</ticker>
+        <ticker_usa>META</ticker_usa>
+        <isin>US30303M1027</isin>
+        <wkn>A1JWVX</wkn>
+        <description>Reagiert heftig auf Werbeeinnahmen und VR-News.</description>
+      </index>
+      <index>
+        <name>Alphabet</name>
+        <ticker>GOOGL</ticker>
+        <ticker_usa>GOOGL</ticker_usa>
+        <isin>US02079K1079</isin>
+        <wkn>A14Y6H</wkn>
+        <description>Google. Oft fuer Short-Sells interessant, wenn sie den KI-Anschluss verlieren.</description>
+      </index>
+      <index>
+        <name>Amazon</name>
+        <ticker>AMZN</ticker>
+        <ticker_usa>AMZN</ticker_usa>
+        <isin>US0231351067</isin>
+        <wkn>906866</wkn>
+        <description>Wichtig fuer Cloud (AWS) und Konsumdaten.</description>
+      </index>
+      <index>
+        <name>Broadcom</name>
+        <ticker>AVGO</ticker>
+        <ticker_usa>AVGO</ticker_usa>
+        <isin>US11135F1012</isin>
+        <wkn>A2JG9Z</wkn>
+        <description>Der "stille Riese" der Vernetzung.</description>
+      </index>
+      <index>
+        <name>AMD</name>
+        <ticker>AMD</ticker>
+        <ticker_usa>AMD</ticker_usa>
+        <isin>US0079031078</isin>
+        <wkn>863186</wkn>
+        <description>Die aggressive Alternative zu Nvidia. Schwankt oft noch staerker.</description>
+      </index>
+      <index>
+        <name>Netflix</name>
+        <ticker>NFLX</ticker>
+        <ticker_usa>NFLX</ticker_usa>
+        <isin>US64110L1061</isin>
+        <wkn>552484</wkn>
+        <description>Sehr volatil nach Abonnentenzahlen.</description>
+      </index>
+      <index>
+        <name>SunDisk</name>
+        <ticker>SNDK</ticker>
+        <ticker_usa>SNDK</ticker_usa>
+        <isin>US80004C2008</isin>
+        <wkn>A411ZM</wkn>
+      </index>
+    </subcategory>
+    <subcategory name="KI-Infrastruktur">
+      <index>
+        <name>Super Micro Computer</name>
+        <ticker>SMCI</ticker>
+        <ticker_usa>SMCI</ticker_usa>
+        <isin>US86800U3023</isin>
+        <wkn>A40MRM</wkn>
+        <description>Extrem hohe Volatilitaet. Baut die Server-Schraenke fuer KI.</description>
+      </index>
+      <index>
+        <name>Vertiv Holdings</name>
+        <ticker>VRT</ticker>
+        <ticker_usa>VRT</ticker_usa>
+        <isin>US92537N1081</isin>
+        <wkn>A2PZ5A</wkn>
+        <description>Spezialist fuer Kuehlung von Rechenzentren. KI-Infrastruktur braucht Strom und Thermomanagement.</description>
+      </index>
+      <index>
+        <name>Arm Holdings</name>
+        <ticker>ARM</ticker>
+        <ticker_usa>ARM</ticker_usa>
+        <isin>US0420682058</isin>
+        <wkn>A3EUCD</wkn>
+        <description>Chip-Architektur mit oft massiven Kursspruengen.</description>
+      </index>
+      <index>
+        <name>Nebius Group N.V.</name>
+        <ticker>NBIS</ticker>
+        <ticker_eu>YDX.F</ticker_eu>
+        <ticker_usa>NBIS</ticker_usa>
+        <isin>NL0009805522</isin>
+        <wkn>A1JGSL</wkn>
+      </index>
+      <index>
+        <name>TBC Bank Group</name>
+        <ticker>TBCG</ticker>
+        <ticker_eu>TBCG.L</ticker_eu>
+        <ticker_usa>TBCG</ticker_usa>
+      </index>
+    </subcategory>
+    <subcategory name="Energy Storage">
+      <index>
+        <name>Enphase Energy</name>
+        <ticker>ENPH</ticker>
+        <ticker_usa>ENPH</ticker_usa>
+        <isin>US29355A1079</isin>
+        <wkn>A1JC82</wkn>
+        <description>Solar-Wechselrichter. Sehr volatil bei Zinsaenderungen.</description>
+      </index>
+      <index>
+        <name>First Solar</name>
+        <ticker>FSLR</ticker>
+        <ticker_usa>FSLR</ticker_usa>
+        <isin>US3364331070</isin>
+        <wkn>A0LEKM</wkn>
+        <description>US-Marktfuehrer fuer Solarpanels.</description>
+      </index>
+      <index>
+        <name>QuantumScape</name>
+        <ticker>QS</ticker>
+        <ticker_usa>QS</ticker_usa>
+        <isin>US74767V1098</isin>
+        <wkn>A2QJX9</wkn>
+        <description>Wette auf die Feststoffbatterie. Extrem hohes Risiko.</description>
+      </index>
+    </subcategory>
+    <subcategory name="Cybersecurity">
+      <index>
+        <name>CrowdStrike</name>
+        <ticker>CRWD</ticker>
+        <ticker_eu>45C.F</ticker_eu>
+        <ticker_usa>CRWD</ticker_usa>
+        <isin>US22788C1053</isin>
+        <wkn>A2PK2R</wkn>
+        <description>Marktfuehrer bei Cloud-Sicherheit.</description>
+      </index>
+      <index>
+        <name>Palo Alto Networks</name>
+        <ticker>PANW</ticker>
+        <ticker_usa>PANW</ticker_usa>
+        <isin>US6974351057</isin>
+        <wkn>A1JZ0Q</wkn>
+        <description>Der groesste Player im Bereich Firewalls.</description>
+      </index>
+      <index>
+        <name>Palantir</name>
+        <ticker>PLTR</ticker>
+        <ticker_eu>PTX.F</ticker_eu>
+        <ticker_usa>PLTR</ticker_usa>
+        <isin>US69608A1088</isin>
+        <wkn>A2QA4J</wkn>
+        <description>Datenanalyse fuer Militaer und Firmen. Kult-Aktie bei Tradern.</description>
+      </index>
+      <index>
+        <name>Zscaler</name>
+        <ticker>ZS</ticker>
+        <ticker_usa>ZS</ticker_usa>
+        <isin>US98980G1022</isin>
+        <wkn>A2JF28</wkn>
+        <description>Spezialist fuer sicheren Fernzugriff.</description>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Rohstoffe">
+    <subcategory name="Edelmetalle">
+      <index>
+        <name>Gold</name>
+        <ticker>GC=F</ticker>
+        <ticker_usa>GC=F</ticker_usa>
+        <description>Gold-Futures als Yahoo-kompatibler Proxy fuer den aktuellen Goldpreis.</description>
+      </index>
+      <index>
+        <name>Silber</name>
+        <ticker>SI=F</ticker>
+        <ticker_usa>SI=F</ticker_usa>
+        <description>Silber-Futures als Yahoo-kompatibler Proxy fuer den aktuellen Silberpreis.</description>
+      </index>
+    </subcategory>
+    <subcategory name="Energie">
+      <index>
+        <name>Brent Crude</name>
+        <ticker>BZ=F</ticker>
+        <ticker_usa>BZ=F</ticker_usa>
+        <description>Das Oel aus der Nordsee. Wichtig fuer Europa.</description>
+      </index>
+      <index>
+        <name>WTI</name>
+        <ticker>CL=F</ticker>
+        <ticker_usa>CL=F</ticker_usa>
+        <description>West Texas Intermediate. Das US-Leichtoel.</description>
+      </index>
+    </subcategory>
+    <subcategory name="Industriemetalle">
+      <index>
+        <name>Freeport-McMoRan</name>
+        <ticker>FCX</ticker>
+        <ticker_eu>FPMB.F</ticker_eu>
+        <ticker_usa>FCX</ticker_usa>
+        <isin>US35671D8570</isin>
+        <wkn>896476</wkn>
+        <tag>Kupfer</tag>
+        <description>Einer der groessten Kupferproduzenten.</description>
+      </index>
+      <index>
+        <name>Rio Tinto</name>
+        <ticker>RIO</ticker>
+        <ticker_usa>RIO</ticker_usa>
+        <ticker_eu>RIO.L</ticker_eu>
+        <isin>GB0007188757</isin>
+        <wkn>852147</wkn>
+        <tag>Kupfer</tag>
+        <description>Gigantischer Bergbaukonzern mit Kupfer und Eisenerz.</description>
+      </index>
+      <index>
+        <name>Southern Copper</name>
+        <ticker>SCCO</ticker>
+        <ticker_usa>SCCO</ticker_usa>
+        <isin>US84265V1052</isin>
+        <wkn>A0HG1Y</wkn>
+        <tag>Kupfer</tag>
+        <description>Sitzt auf riesigen Kupferreserven in Peru und Mexiko.</description>
+      </index>
+      <index>
+        <name>Albemarle</name>
+        <ticker>ALB</ticker>
+        <ticker_eu>AMC.F</ticker_eu>
+        <ticker_usa>ALB</ticker_usa>
+        <isin>US0126531013</isin>
+        <wkn>890167</wkn>
+        <tag>Lithium</tag>
+        <description>Weltmarktfuehrer bei Lithium fuer Batterien.</description>
+      </index>
+      <index>
+        <name>SQM</name>
+        <ticker>SQM</ticker>
+        <ticker_eu>QYM.F</ticker_eu>
+        <ticker_usa>SQM</ticker_usa>
+        <isin>US8336351056</isin>
+        <wkn>895007</wkn>
+        <tag>Lithium</tag>
+        <description>Grosser Lithium-Player aus Chile.</description>
+      </index>
+      <index>
+        <name>Arcadium Lithium</name>
+        <ticker>ALTM</ticker>
+        <ticker_usa>ALTM</ticker_usa>
+        <isin>AU0000305724</isin>
+        <wkn>A3E13Q</wkn>
+        <tag>Lithium</tag>
+        <description>Neuer grosser Zusammenschluss der Branche. Uebernahme durch Rio Tinto am 6. Maerz 2025 abgeschlossen, daher kein aktueller Boersenkurs mehr verfuegbar.</description>
+      </index>
+    </subcategory>
+  </category>
+</stockCategories>
