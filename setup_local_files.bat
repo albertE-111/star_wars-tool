@@ -51,6 +51,12 @@ if errorlevel 1 (
     echo Fehler: Abhaengigkeiten konnten nicht installiert werden.
     exit /b 1
 )
+call ".venv\Scripts\python.exe" -c "import telegram" >nul 2>nul
+if errorlevel 1 (
+    echo Fehler: Modul 'telegram' ist trotz Installation nicht verfuegbar.
+    echo Pruefe Internetverbindung, Python-Version und pip-Ausgabe oben.
+    exit /b 1
+)
 
 echo [6/6] Fertig.
 echo Jetzt config\app_config.json mit echten Tokens und IDs befuellen.

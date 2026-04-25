@@ -11,6 +11,16 @@ if not exist ".venv\Scripts\python.exe" (
 
 if not exist "config" mkdir "config"
 
+call ".venv\Scripts\python.exe" -c "import telegram" >nul 2>nul
+if errorlevel 1 (
+    echo Python-Modul 'telegram' fehlt. Installiere Abhaengigkeiten in .venv ...
+    call ".venv\Scripts\python.exe" -m pip install -r requirements.txt
+    if errorlevel 1 (
+        echo Fehler: Abhaengigkeiten konnten nicht installiert werden.
+        goto WaitForUser
+    )
+)
+
 call ".venv\Scripts\python.exe" "ensure_app_config.py"
 if errorlevel 1 goto WaitForUser
 
