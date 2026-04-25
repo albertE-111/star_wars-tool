@@ -9,7 +9,7 @@ if not exist ".venv\Scripts\python.exe" (
     python -m venv .venv
     if errorlevel 1 (
         echo Fehler: Konnte .venv nicht erstellen. Ist Python installiert und im PATH?
-        exit /b 1
+        goto Fail
     )
 ) else (
     echo .venv existiert bereits.
@@ -23,7 +23,7 @@ if not exist "config\app_config.json" (
         echo config\app_config.json wurde aus der Vorlage erstellt.
     ) else (
         echo Fehler: config\app_config.example.json fehlt.
-        exit /b 1
+        goto Fail
     )
 ) else (
     echo config\app_config.json existiert bereits.
@@ -49,13 +49,14 @@ echo [5/6] Installiere Python-Abhaengigkeiten...
 call ".venv\Scripts\python.exe" -m pip install -r requirements.txt
 if errorlevel 1 (
     echo Fehler: Abhaengigkeiten konnten nicht installiert werden.
-    exit /b 1
+    goto Fail
 )
+
 call ".venv\Scripts\python.exe" -c "import telegram" >nul 2>nul
 if errorlevel 1 (
     echo Fehler: Modul 'telegram' ist trotz Installation nicht verfuegbar.
     echo Pruefe Internetverbindung, Python-Version und pip-Ausgabe oben.
-    exit /b 1
+    goto Fail
 )
 
 echo [6/6] Fertig.
@@ -63,5 +64,16 @@ echo Jetzt config\app_config.json mit echten Tokens und IDs befuellen.
 echo Danach starten mit:
 echo   .venv\Scripts\python.exe telegram_bot.py
 echo   .venv\Scripts\python.exe support_bot.py
+echo.
+echo Success: setup_local_files.bat wurde erfolgreich abgeschlossen.
+goto EndWithPrompt
 
+:Fail
+echo.
+echo Fehler: setup_local_files.bat wurde nicht erfolgreich abgeschlossen.
+
+:EndWithPrompt
+echo.
+set /p EXIT_CONFIRM=Zum Schliessen Enter druecken...
 endlocal
+exit /b 0
