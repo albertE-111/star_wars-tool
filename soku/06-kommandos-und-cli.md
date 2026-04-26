@@ -1,0 +1,144 @@
+# Kommandos und CLI
+
+## Telegram-Kommandos des Haupt-Bots
+
+Aus dem Code ersichtlich sind unter anderem folgende Commands:
+
+### Marktbriefing
+
+- `/marketbrief <query>`: einzelnen Market Brief fuer Name, Ticker, ISIN oder WKN abrufen
+- `/marketbrief_start`: interaktiven Batch-Workflow starten
+
+### Auto Market Brief
+
+- `/autobrief`: Status und Konfiguration anzeigen
+- `/autobrief_start`: interaktive Konfiguration starten
+- `/autobrief_next`: naechsten geplanten Lauf anzeigen
+- `/autobrief_set <start> <end> <interval_min> [news on|off]`: Zeitfenster und Intervall direkt setzen
+- `/autobrief_filter [category] [subcategory]`: Filter setzen oder loeschen
+- `/autobrief_on`: Automatik aktivieren
+- `/autobrief_off`: Automatik deaktivieren
+
+### Support und Verwaltung
+
+- `/supportbot`: Status und Steuerung des Support-Bots
+- `/listenpflege`: XML-Instrumentenliste pflegen
+- `/start`: Bot-Startnachricht und Uebersicht
+- `/cancel`: laufende Konversation abbrechen
+
+### Zertifikate
+
+- `/certificate_scraper_start`: interaktiven Zertifikate-Workflow starten
+
+## Telegram-Kommandos des Support-Bots
+
+Im Support-Bot sind unter anderem diese Commands registriert:
+
+- `/status`: Status und Heartbeat des Haupt-Bots
+- `/main_on`: Haupt-Bot starten
+- `/main_off`: Haupt-Bot stoppen
+- `/main_restart`: Haupt-Bot neu starten
+- `/errors`: letzte Fehlermeldungen anzeigen
+- `/open_errors`: offene Market-Brief-Fehler anzeigen
+- `/resolve_error`: Fehler als geloest markieren
+- `/start`: Startnachricht des Support-Bots
+
+## Wichtige lokale CLI-Skripte
+
+### `market_brief.py`
+
+Einzelanalyse eines XML-Eintrags:
+
+```powershell
+.venv\Scripts\python.exe market_brief.py "NVDA"
+```
+
+Wichtige Optionen:
+
+- `--json`
+- `--xml <pfad>`
+- `--no-news-summary`
+- `--gemini-model <modell>`
+
+### `batch_market_brief.py`
+
+Batch-Auswertung ueber mehrere XML-Eintraege:
+
+```powershell
+.venv\Scripts\python.exe batch_market_brief.py --category "Einzelaktien" --subcategory "Big Tech"
+```
+
+Wichtige Optionen:
+
+- `--xml <pfad>`
+- `--category <name>`
+- `--subcategory <name>`
+- `--output <datei>`
+- `--limit <n>`
+- `--with-news-summary`
+- `--no-news-summary`
+
+### `batch_market_brief_client.py`
+
+Interaktive Terminalsteuerung fuer Batch-Laeufe:
+
+```powershell
+.venv\Scripts\python.exe batch_market_brief_client.py
+```
+
+### `terminal_client.py`
+
+Interaktive lokale Auswahl eines Instruments aus der XML:
+
+```powershell
+.venv\Scripts\python.exe terminal_client.py
+```
+
+### `article_fetcher.py`
+
+Artikeltext aus URL extrahieren:
+
+```powershell
+.venv\Scripts\python.exe article_fetcher.py "https://beispiel.de/artikel"
+```
+
+Optionen:
+
+- `--title <titel>`
+- `--json`
+
+### `article_client.py`
+
+Interaktive Variante fuer den Artikelabruf:
+
+```powershell
+.venv\Scripts\python.exe article_client.py
+```
+
+### `gemini_article_client.py`
+
+Artikel laden und zusammenfassen:
+
+```powershell
+.venv\Scripts\python.exe gemini_article_client.py
+```
+
+### `certificate_scraper.py`
+
+Lokaler Zertifikate-Scraper fuer einen Basiswert.
+
+Je nach Implementierung wird das Skript im Haupt-Bot typischerweise interaktiv angestossen und schreibt Ergebnisdateien mit dem Muster:
+
+`zertifikate_analyse_<isin>_<timestamp>.json`
+
+### `ensure_app_config.py`
+
+Fehlende Pflichtkonfiguration interaktiv abfragen:
+
+```powershell
+.venv\Scripts\python.exe ensure_app_config.py
+```
+
+### `dax_stand.py`
+
+Hilfsskript fuer DAX-bezogene XML-Inhalte oder Stammdatenpflege. Vor produktiver Nutzung sollte geprueft werden, welche Ausgabedatei oder Zielstruktur im konkreten Lauf verwendet wird.
