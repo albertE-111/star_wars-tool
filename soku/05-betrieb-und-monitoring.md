@@ -101,6 +101,12 @@ Pruefen:
 - liegt die aktuelle Zeit innerhalb von `start_time` und `end_time`
 - gibt es Fehler-Events zum Batch-Lauf
 
+Hilfreiche Support-Bot-Kommandos:
+
+- `\autobrief_chat` zeigt Ziel-Chat-ID und Kernkonfiguration des Auto-Briefs
+- `\autobrief_chat_here` setzt den aktuellen Support-Bot-Chat direkt als Ziel
+- `\autobrief_chat_set <chat_id>` setzt die Ziel-Chat-ID manuell und speichert sie in `config/app_config.json`
+
 ### Support-Bot meldet stale Heartbeat
 
 Das weist meist auf eines von drei Problemen hin:

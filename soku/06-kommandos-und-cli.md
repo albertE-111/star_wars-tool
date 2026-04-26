@@ -38,10 +38,15 @@ Im Support-Bot sind unter anderem diese Commands registriert:
 - `/main_on`: Haupt-Bot starten
 - `/main_off`: Haupt-Bot stoppen
 - `/main_restart`: Haupt-Bot neu starten
+- `/autobrief_chat`: aktuell konfigurierte Auto-Market-Brief-Chat-ID und zentrale Auto-Brief-Einstellungen anzeigen
+- `/autobrief_chat_here`: den aktuellen Support-Bot-Chat als Ziel fuer den Auto-Market-Brief setzen
+- `/autobrief_chat_set <chat_id>`: Ziel-Chat-ID fuer den Auto-Market-Brief manuell auf einen Zahlenwert setzen
 - `/errors`: letzte Fehlermeldungen anzeigen
 - `/open_errors`: offene Market-Brief-Fehler anzeigen
 - `/resolve_error`: Fehler als geloest markieren
 - `/start`: Startnachricht des Support-Bots
+
+Hinweis: Die durch `/autobrief_chat_here` oder `/autobrief_chat_set` gesetzte Ziel-Chat-ID wird dauerhaft in `config/app_config.json` unter `auto_market_brief.chat_id` gespeichert.
 
 ## Wichtige lokale CLI-Skripte
 

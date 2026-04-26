@@ -121,6 +121,8 @@ Wenn aktiv, verschickt der Bot zusaetzlich eine detailreichere Rueckmeldung zum 
 
 Ziel-Chat fuer den automatischen Versand.
 
+Die ID kann entweder direkt in `config/app_config.json` gepflegt oder ueber den Support-Bot gesetzt werden. Die Support-Bot-Kommandos `/autobrief_chat_here` und `/autobrief_chat_set <chat_id>` schreiben den neuen Wert dauerhaft in diese Datei.
+
 ### `last_run_at`
 
 Zeitstempel des letzten Auto-Laufs. Wird vom Bot selbst gepflegt.
@@ -141,3 +143,4 @@ Praktisch unverzichtbar sind:
 - `config/app_config.json` enthaelt Secrets und gehoert nicht in ein oeffentliches Repository.
 - Nach versehentlicher Offenlegung muessen Tokens und API-Keys rotiert werden.
 - Aenderungen an `auto_market_brief` koennen direkt das Laufzeitverhalten des Haupt-Bots aendern.
+- Laufzeitaenderungen ueber den Support-Bot, insbesondere an `auto_market_brief.chat_id`, werden in `config/app_config.json` persistiert und bleiben nach einem Neustart erhalten.

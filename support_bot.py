@@ -167,12 +167,89 @@ def support_config(runtime: SupportRuntime) -> dict:
     return payload
 
 
+def auto_market_brief_config(runtime: SupportRuntime) -> dict:
+    payload = runtime.config.get("auto_market_brief")
+    if not isinstance(payload, dict):
+        payload = {}
+        runtime.config["auto_market_brief"] = payload
+    return payload
+
+
 def save_notify_chat_id(runtime: SupportRuntime, chat_id: int) -> None:
     payload = support_config(runtime)
     payload["notify_chat_id"] = chat_id
     payload.setdefault("heartbeat_timeout_seconds", runtime.heartbeat_timeout_seconds)
     save_config(runtime.config)
     runtime.notify_chat_id = chat_id
+
+
+def get_auto_brief_chat_id(runtime: SupportRuntime) -> int:
+    payload = auto_market_brief_config(runtime)
+    raw = payload.get("chat_id", 0)
+    try:
+        return int(raw or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def save_auto_brief_chat_id(runtime: SupportRuntime, chat_id: int) -> None:
+    payload = auto_market_brief_config(runtime)
+    payload["chat_id"] = int(chat_id)
+    save_config(runtime.config)
+
+
+def format_auto_brief_target(runtime: SupportRuntime) -> str:
+    payload = auto_market_brief_config(runtime)
+    chat_id = get_auto_brief_chat_id(runtime)
+    enabled = bool(payload.get("enabled", False))
+    start_time = str(payload.get("start_time", "08:15")).strip() or "08:15"
+    end_time = str(payload.get("end_time", "22:15")).strip() or "22:15"
+    interval = payload.get("interval_minutes", 60)
+    category = str(payload.get("category", "")).strip() or "alle"
+    subcategory = str(payload.get("subcategory", "")).strip() or "alle"
+    last_run_at = str(payload.get("last_run_at", "")).strip() or "-"
+    return "\n".join(
+        [
+            "Auto-Market-Brief Zielchat",
+            f"Aktiv: {'ja' if enabled else 'nein'}",
+            f"Chat-ID: {chat_id or '-'}",
+            f"Kategorie: {category}",
+            f"Subkategorie: {subcategory}",
+            f"Intervall: {interval} Minuten",
+            f"Zeitfenster: {start_time} - {end_time}",
+            f"Letzter Lauf: {last_run_at}",
+        ]
+    )
+
+
+def apply_auto_brief_chat_change(runtime: SupportRuntime, chat_id: int) -> dict[str, str]:
+    previous_chat_id = get_auto_brief_chat_id(runtime)
+    save_auto_brief_chat_id(runtime, chat_id)
+    main_status = get_main_bot_status()
+    restart_message = ""
+    if main_status.get("running"):
+        result = restart_main_bot_process(python_executable=sys.executable)
+        restart_message = result["message"]
+    else:
+        restart_message = (
+            "Haupt-Bot laeuft aktuell nicht. Die neue Chat-ID wird beim naechsten Start uebernommen."
+        )
+
+    append_event(
+        "support_bot",
+        "INFO",
+        "Auto-Market-Brief-Chat-ID aktualisiert.",
+        {
+            "old_chat_id": previous_chat_id,
+            "new_chat_id": chat_id,
+            "main_bot_running_before_change": bool(main_status.get("running")),
+        },
+    )
+    return {
+        "previous_chat_id": str(previous_chat_id or "-"),
+        "new_chat_id": str(chat_id),
+        "restart_message": restart_message,
+    }
 
 
 def get_open_incidents(runtime: SupportRuntime) -> list[dict]:
@@ -282,6 +359,7 @@ def format_status(runtime: SupportRuntime) -> str:
         f"Heartbeat Timeout: {runtime.heartbeat_timeout_seconds}s",
         f"Auto Market Brief: {auto_brief_state}",
         f"Auto Market Brief letzter Lauf: {heartbeat_details.get('auto_brief_last_run_at', '-') or '-'}",
+        f"Auto Market Brief Ziel-Chat-ID: {get_auto_brief_chat_id(runtime) or '-'}",
         f"Event-Datei: {BOT_EVENT_LOG_PATH.name}",
         f"Benachrichtigungs-Chat: {runtime.notify_chat_id or '-'}",
         f"Offene Market-Brief-Fehler: {len(get_open_incidents(runtime))}",
@@ -365,6 +443,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "Support-Bot aktiv.\n"
             "Befehle:\n"
             "/status - Haupt-Bot Status und Heartbeat\n"
+            "/autobrief_chat - Auto-Market-Brief Ziel anzeigen\n"
+            "/autobrief_chat_here - diesen Chat als Auto-Brief-Ziel setzen\n"
+            "/autobrief_chat_set <chat_id> - Auto-Brief-Ziel manuell setzen\n"
             "/main_on - Haupt-Bot starten\n"
             "/main_off - Haupt-Bot stoppen\n"
             "/main_restart - Haupt-Bot neu starten\n"
@@ -497,6 +578,86 @@ async def main_restart_command(update: Update, context: ContextTypes.DEFAULT_TYP
         await message.reply_text(result["message"])
 
 
+async def autobrief_chat_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    message = update.effective_message
+    if message is None:
+        return
+    help_text = "\n".join(
+        [
+            format_auto_brief_target(runtime),
+            "",
+            "Befehle:",
+            "/autobrief_chat - aktuelles Ziel anzeigen",
+            "/autobrief_chat_here - diesen Support-Bot-Chat als Ziel setzen",
+            "/autobrief_chat_set <chat_id> - Ziel manuell auf eine Chat-ID setzen",
+            "",
+            "Hinweis: Nach einer Aenderung wird der Haupt-Bot automatisch neu gestartet, damit die neue ID sofort aktiv ist.",
+        ]
+    )
+    await reply_long(message, help_text)
+
+
+async def autobrief_chat_here_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    message = update.effective_message
+    chat = update.effective_chat
+    if message is None or chat is None:
+        return
+
+    result = apply_auto_brief_chat_change(runtime, chat.id)
+    title = chat.title or ""
+    target_label = title if title else (chat.username or chat.full_name or str(chat.id))
+    response = "\n".join(
+        [
+            "Auto-Market-Brief Zielchat wurde aktualisiert.",
+            f"Vorherige Chat-ID: {result['previous_chat_id']}",
+            f"Neue Chat-ID: {result['new_chat_id']}",
+            f"Zielchat: {target_label}",
+            "",
+            result["restart_message"],
+        ]
+    )
+    await reply_long(message, response)
+
+
+async def autobrief_chat_set_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    message = update.effective_message
+    if message is None:
+        return
+    if not context.args:
+        await message.reply_text("Bitte eine Chat-ID angeben, z. B. /autobrief_chat_set 123456789")
+        return
+
+    raw = str(context.args[0]).strip()
+    try:
+        chat_id = int(raw)
+    except ValueError:
+        await message.reply_text("Chat-ID muss eine Zahl sein, z. B. /autobrief_chat_set 123456789")
+        return
+
+    result = apply_auto_brief_chat_change(runtime, chat_id)
+    response = "\n".join(
+        [
+            "Auto-Market-Brief Zielchat wurde aktualisiert.",
+            f"Vorherige Chat-ID: {result['previous_chat_id']}",
+            f"Neue Chat-ID: {result['new_chat_id']}",
+            "",
+            result["restart_message"],
+            "",
+            "Wichtig: Stelle sicher, dass der Haupt-Bot diesem Chat bereits schreiben darf. Bei privaten Chats muss der Nutzer den Haupt-Bot vorher mit /start aktiviert haben.",
+        ]
+    )
+    await reply_long(message, response)
+
+
 async def support_monitor_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     runtime: SupportRuntime = context.application.bot_data["runtime"]
     if not runtime.notify_chat_id:
@@ -594,6 +755,8 @@ async def post_init(application: Application) -> None:
     await application.bot.set_my_commands(
         [
             BotCommand("status", "Status und Heartbeat des Haupt-Bots"),
+            BotCommand("autobrief_chat", "Auto-Market-Brief Zielchat anzeigen"),
+            BotCommand("autobrief_chat_here", "Diesen Chat als Auto-Brief-Ziel setzen"),
             BotCommand("main_on", "Haupt-Bot starten"),
             BotCommand("main_off", "Haupt-Bot stoppen"),
             BotCommand("main_restart", "Haupt-Bot neu starten"),
@@ -617,6 +780,9 @@ def build_application() -> Application:
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("ping", ping_command))
     application.add_handler(CommandHandler("status", status_command))
+    application.add_handler(CommandHandler("autobrief_chat", autobrief_chat_command))
+    application.add_handler(CommandHandler("autobrief_chat_here", autobrief_chat_here_command))
+    application.add_handler(CommandHandler("autobrief_chat_set", autobrief_chat_set_command))
     application.add_handler(CommandHandler("errors", errors_command))
     application.add_handler(CommandHandler("open_errors", open_errors_command))
     application.add_handler(CommandHandler("resolve_error", resolve_error_command))
