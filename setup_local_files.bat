@@ -3,7 +3,17 @@ setlocal
 
 cd /d "%~dp0"
 
+set "PYTHON_VERSION_OK="
+set "VENV_PYTHON_VERSION_OK="
+
 echo [1/6] Pruefe Python-Virtualenv...
+python -c "import sys; raise SystemExit(0 if ((3, 10) <= sys.version_info[:2] < (3, 14)) else 1)"
+if errorlevel 1 (
+    echo Fehler: Dieses Projekt benoetigt Python 3.10 bis 3.13.
+    python --version
+    echo Installiere eine passende Python-Version und starte das Setup danach erneut.
+    goto Fail
+)
 if not exist ".venv\Scripts\python.exe" (
     echo Erstelle .venv ...
     python -m venv .venv
@@ -13,6 +23,14 @@ if not exist ".venv\Scripts\python.exe" (
     )
 ) else (
     echo .venv existiert bereits.
+)
+
+call ".venv\Scripts\python.exe" -c "import sys; raise SystemExit(0 if ((3, 10) <= sys.version_info[:2] < (3, 14)) else 1)"
+if errorlevel 1 (
+    echo Fehler: Die vorhandene .venv verwendet keine unterstuetzte Python-Version.
+    call ".venv\Scripts\python.exe" --version
+    echo Loesche .venv und erstelle sie mit Python 3.10 bis 3.13 neu.
+    goto Fail
 )
 
 echo [2/6] Erstelle lokale Konfiguration...
