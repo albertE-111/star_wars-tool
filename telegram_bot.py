@@ -89,17 +89,19 @@ STATE_LIST_ADD_TICKER = 34
 STATE_LIST_ADD_ISIN = 35
 STATE_LIST_ADD_WKN = 36
 STATE_LIST_ADD_CONFIRM = 37
-STATE_LIST_EDIT_CATEGORY = 38
-STATE_LIST_EDIT_SUBCATEGORY = 39
-STATE_LIST_EDIT_ENTRY = 40
-STATE_LIST_EDIT_FIELD = 41
-STATE_LIST_EDIT_VALUE = 42
-STATE_LIST_EDIT_CONFIRM = 43
-STATE_LIST_DELETE_CATEGORY = 44
-STATE_LIST_DELETE_SUBCATEGORY = 45
-STATE_LIST_DELETE_ENTRY = 46
-STATE_LIST_DELETE_CONFIRM = 47
-STATE_SUPPORT_MENU = 48
+STATE_LIST_ADD_OPTIONAL_MENU = 38
+STATE_LIST_ADD_OPTIONAL_VALUE = 39
+STATE_LIST_EDIT_CATEGORY = 40
+STATE_LIST_EDIT_SUBCATEGORY = 41
+STATE_LIST_EDIT_ENTRY = 42
+STATE_LIST_EDIT_FIELD = 43
+STATE_LIST_EDIT_VALUE = 44
+STATE_LIST_EDIT_CONFIRM = 45
+STATE_LIST_DELETE_CATEGORY = 46
+STATE_LIST_DELETE_SUBCATEGORY = 47
+STATE_LIST_DELETE_ENTRY = 48
+STATE_LIST_DELETE_CONFIRM = 49
+STATE_SUPPORT_MENU = 50
 CALLBACK_PREFIX_CATEGORY = "mbc:"
 CALLBACK_PREFIX_SUBCATEGORY = "mbs:"
 CALLBACK_PREFIX_ENTRY = "mbe:"
@@ -120,8 +122,28 @@ CALLBACK_PREFIX_LIST_CONFIRM = "lpy:"
 CALLBACK_PREFIX_LIST_ADD_CATEGORY = "lpac:"
 CALLBACK_PREFIX_LIST_ADD_SUBCATEGORY = "lpas:"
 CALLBACK_PREFIX_LIST_ADD_NAME = "lpan:"
+CALLBACK_PREFIX_LIST_OPTIONAL = "lpao:"
 CALLBACK_PREFIX_SUPPORT = "sup:"
 AUTO_BRIEF_JOB_NAME = "auto_market_brief"
+
+REQUIRED_STOCK_FIELDS = ["category", "subcategory", "name", "ticker", "isin", "wkn"]
+OPTIONAL_STOCK_FIELDS = ["ticker_usa", "ticker_eu", "ticker_apac", "land", "tag", "description"]
+TICKER_FIELD_NAMES = ["ticker", "ticker_usa", "ticker_eu", "ticker_apac"]
+IDENTIFIER_FIELD_NAMES = ["isin", "wkn"]
+STOCK_FIELD_LABELS = {
+    "category": "Kategorie",
+    "subcategory": "Subkategorie",
+    "name": "Name",
+    "ticker": "Ticker",
+    "ticker_usa": "Ticker USA",
+    "ticker_eu": "Ticker EU",
+    "ticker_apac": "Ticker APAC",
+    "isin": "ISIN",
+    "wkn": "WKN",
+    "land": "Land",
+    "tag": "Tag",
+    "description": "Beschreibung",
+}
 
 
 @dataclass
@@ -354,6 +376,12 @@ def collect_stock_entries(xml_path: str = "config/stock_categories/stock_categor
                     "ticker": (index.findtext("ticker") or "").strip(),
                     "isin": (index.findtext("isin") or "").strip(),
                     "wkn": (index.findtext("wkn") or "").strip(),
+                    "ticker_usa": (index.findtext("ticker_usa") or "").strip(),
+                    "ticker_eu": (index.findtext("ticker_eu") or "").strip(),
+                    "ticker_apac": (index.findtext("ticker_apac") or "").strip(),
+                    "land": (index.findtext("land") or "").strip(),
+                    "tag": (index.findtext("tag") or "").strip(),
+                    "description": (index.findtext("description") or "").strip(),
                 }
                 entry["query"] = entry["ticker"] or entry["isin"] or entry["wkn"] or entry["name"]
                 entries.append(entry)
@@ -427,8 +455,13 @@ def cleanup_empty_stock_nodes(root: ElementTree.Element) -> None:
             root.remove(category)
 
 
-def normalize_stock_value(value: str) -> str:
-    return value.strip()
+def normalize_stock_value(value: str, field_name: str = "") -> str:
+    normalized = value.strip()
+    if field_name in TICKER_FIELD_NAMES:
+        return normalized.upper()
+    if field_name in IDENTIFIER_FIELD_NAMES:
+        return normalized.upper().replace(" ", "")
+    return normalized
 
 
 def validate_stock_entry_payload(
@@ -436,9 +469,10 @@ def validate_stock_entry_payload(
     existing_entries: list[dict[str, str]],
     current_query: str = "",
 ) -> None:
-    required_fields = ["category", "subcategory", "name", "ticker", "isin", "wkn"]
-    for field in required_fields:
-        if not normalize_stock_value(payload.get(field, "")):
+    normalized_payload = {key: normalize_stock_value(str(value), key) for key, value in payload.items()}
+
+    for field in REQUIRED_STOCK_FIELDS:
+        if not normalized_payload.get(field, ""):
             raise RuntimeError(f"Feld fehlt oder ist leer: {field}")
 
     for entry in existing_entries:
@@ -446,15 +480,25 @@ def validate_stock_entry_payload(
         if current_query and entry_query == current_query:
             continue
 
-        for field in ["ticker", "isin", "wkn"]:
-            candidate = normalize_stock_value(payload.get(field, ""))
-            other = normalize_stock_value(entry.get(field, ""))
+        other_tickers = {
+            normalize_stock_value(str(entry.get(field, "")), field).casefold()
+            for field in TICKER_FIELD_NAMES
+            if normalize_stock_value(str(entry.get(field, "")), field)
+        }
+        for field in TICKER_FIELD_NAMES:
+            candidate = normalized_payload.get(field, "")
+            if candidate and candidate.casefold() in other_tickers:
+                raise RuntimeError(f"Ticker existiert bereits: {candidate}")
+
+        for field in IDENTIFIER_FIELD_NAMES:
+            candidate = normalized_payload.get(field, "")
+            other = normalize_stock_value(str(entry.get(field, "")), field)
             if candidate and other and candidate.casefold() == other.casefold():
                 raise RuntimeError(f"{field.upper()} existiert bereits: {candidate}")
 
 
 def add_stock_entry(payload: dict[str, str], xml_path: str = "config/stock_categories/stock_categories.xml") -> Path:
-    clean_payload = {key: normalize_stock_value(value) for key, value in payload.items()}
+    clean_payload = {key: normalize_stock_value(str(value), key) for key, value in payload.items()}
     validate_stock_entry_payload(clean_payload, collect_stock_entries(xml_path))
 
     tree = load_stock_tree(xml_path)
@@ -466,6 +510,10 @@ def add_stock_entry(payload: dict[str, str], xml_path: str = "config/stock_categ
     ensure_text_child(index, "ticker").text = clean_payload["ticker"]
     ensure_text_child(index, "isin").text = clean_payload["isin"]
     ensure_text_child(index, "wkn").text = clean_payload["wkn"]
+    for field in OPTIONAL_STOCK_FIELDS:
+        value = clean_payload.get(field, "")
+        if value:
+            ensure_text_child(index, field).text = value
     return save_stock_tree(tree, xml_path)
 
 
@@ -489,8 +537,14 @@ def update_stock_entry(
         "ticker": (entry_node.findtext("ticker") or "").strip(),
         "isin": (entry_node.findtext("isin") or "").strip(),
         "wkn": (entry_node.findtext("wkn") or "").strip(),
+        "ticker_usa": (entry_node.findtext("ticker_usa") or "").strip(),
+        "ticker_eu": (entry_node.findtext("ticker_eu") or "").strip(),
+        "ticker_apac": (entry_node.findtext("ticker_apac") or "").strip(),
+        "land": (entry_node.findtext("land") or "").strip(),
+        "tag": (entry_node.findtext("tag") or "").strip(),
+        "description": (entry_node.findtext("description") or "").strip(),
     }
-    merged = {**current_data, **{key: normalize_stock_value(value) for key, value in updated_fields.items()}}
+    merged = {**current_data, **{key: normalize_stock_value(str(value), key) for key, value in updated_fields.items()}}
     validate_stock_entry_payload(merged, collect_stock_entries(xml_path), current_query=current_query)
 
     target_category = merged["category"]
@@ -507,6 +561,13 @@ def update_stock_entry(
     ensure_text_child(entry_node, "ticker").text = merged["ticker"]
     ensure_text_child(entry_node, "isin").text = merged["isin"]
     ensure_text_child(entry_node, "wkn").text = merged["wkn"]
+    for field in OPTIONAL_STOCK_FIELDS:
+        value = merged.get(field, "")
+        child = entry_node.find(field)
+        if value:
+            ensure_text_child(entry_node, field).text = value
+        elif child is not None:
+            entry_node.remove(child)
 
     backup_path = save_stock_tree(tree, xml_path)
     merged["query"] = merged["ticker"] or merged["isin"] or merged["wkn"] or merged["name"]
@@ -1525,14 +1586,19 @@ def build_entry_choice_keyboard(entries: list[dict[str, str]], prefix: str) -> I
 
 
 def format_stock_entry(entry: dict[str, str]) -> str:
-    return (
-        f"Kategorie: {entry.get('category', '-')}\n"
-        f"Subkategorie: {entry.get('subcategory', '-')}\n"
-        f"Name: {entry.get('name', '-')}\n"
-        f"Ticker: {entry.get('ticker', '-')}\n"
-        f"ISIN: {entry.get('isin', '-')}\n"
-        f"WKN: {entry.get('wkn', '-')}"
-    )
+    lines = [
+        f"Kategorie: {entry.get('category', '-')}",
+        f"Subkategorie: {entry.get('subcategory', '-')}",
+        f"Name: {entry.get('name', '-')}",
+        f"Ticker: {entry.get('ticker', '-')}",
+        f"ISIN: {entry.get('isin', '-')}",
+        f"WKN: {entry.get('wkn', '-')}",
+    ]
+    for field in OPTIONAL_STOCK_FIELDS:
+        value = str(entry.get(field, "")).strip()
+        if value:
+            lines.append(f"{STOCK_FIELD_LABELS[field]}: {value}")
+    return "\n".join(lines)
 
 
 def build_text_navigation_keyboard() -> ReplyKeyboardMarkup:
@@ -1570,6 +1636,53 @@ def build_list_add_name_keyboard() -> InlineKeyboardMarkup:
             ("Abbrechen", f"{CALLBACK_PREFIX_LIST_ADD_NAME}cancel"),
         ]
     )
+
+
+def build_stock_field_choice_keyboard() -> InlineKeyboardMarkup:
+    options = [
+        ("Name", f"{CALLBACK_PREFIX_LIST_FIELD}name"),
+        ("Ticker", f"{CALLBACK_PREFIX_LIST_FIELD}ticker"),
+        ("Ticker USA", f"{CALLBACK_PREFIX_LIST_FIELD}ticker_usa"),
+        ("Ticker EU", f"{CALLBACK_PREFIX_LIST_FIELD}ticker_eu"),
+        ("Ticker APAC", f"{CALLBACK_PREFIX_LIST_FIELD}ticker_apac"),
+        ("ISIN", f"{CALLBACK_PREFIX_LIST_FIELD}isin"),
+        ("WKN", f"{CALLBACK_PREFIX_LIST_FIELD}wkn"),
+        ("Land", f"{CALLBACK_PREFIX_LIST_FIELD}land"),
+        ("Tag", f"{CALLBACK_PREFIX_LIST_FIELD}tag"),
+        ("Beschreibung", f"{CALLBACK_PREFIX_LIST_FIELD}description"),
+        ("Kategorie", f"{CALLBACK_PREFIX_LIST_FIELD}category"),
+        ("Subkategorie", f"{CALLBACK_PREFIX_LIST_FIELD}subcategory"),
+        ("Zurueck", f"{CALLBACK_PREFIX_LIST_FIELD}back"),
+        ("Abbrechen", f"{CALLBACK_PREFIX_LIST_FIELD}cancel"),
+    ]
+    return build_option_keyboard(options)
+
+
+def build_list_optional_menu_keyboard(payload: dict[str, str]) -> InlineKeyboardMarkup:
+    options = []
+    for field in OPTIONAL_STOCK_FIELDS:
+        marker = "[x]" if str(payload.get(field, "")).strip() else "[ ]"
+        options.append((f"{marker} {STOCK_FIELD_LABELS[field]}", f"{CALLBACK_PREFIX_LIST_OPTIONAL}{field}"))
+    options.extend(
+        [
+            ("Weiter zum Speichern", f"{CALLBACK_PREFIX_LIST_OPTIONAL}save"),
+            ("Zurueck", f"{CALLBACK_PREFIX_LIST_OPTIONAL}back"),
+            ("Abbrechen", f"{CALLBACK_PREFIX_LIST_OPTIONAL}cancel"),
+        ]
+    )
+    return build_option_keyboard(options)
+
+
+def stock_optional_field_prompt(field_name: str) -> str:
+    prompts = {
+        "ticker_usa": "US-Referenzticker eingeben, z.B. NVDA:",
+        "ticker_eu": "Europa-Ticker eingeben, z.B. SAP.DE oder ASML.AS:",
+        "ticker_apac": "APAC-Ticker eingeben, z.B. 7203.T oder 0700.HK:",
+        "land": "Land eingeben, z.B. USA, Deutschland oder Japan:",
+        "tag": "Tag/Sektor eingeben, z.B. KI, Halbleiter oder Energie:",
+        "description": "Kurzbeschreibung eingeben:",
+    }
+    return prompts.get(field_name, f"Wert fuer {field_name} eingeben:")
 
 
 def build_time_choice_keyboard(prefix: str, mode: str = "from") -> InlineKeyboardMarkup:
@@ -2349,6 +2462,20 @@ async def show_listenpflege_action_menu(message) -> None:
     )
 
 
+async def show_list_add_optional_menu(message, context: ContextTypes.DEFAULT_TYPE, *, reply_markup=ReplyKeyboardRemove()) -> None:
+    payload = context.user_data.get("list_add_payload", {})
+    await message.reply_text(
+        "Optionale Zusatzfelder auswaehlen.\n"
+        "Empfohlen fuer saubere Market-Brief-Laeufe: Ticker USA, Ticker EU, Ticker APAC.\n\n"
+        + format_stock_entry(payload),
+        reply_markup=reply_markup,
+    )
+    await message.reply_text(
+        "Zusatzfeld waehlen oder direkt speichern:",
+        reply_markup=build_list_optional_menu_keyboard(payload),
+    )
+
+
 async def listenpflege_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     if query is None:
@@ -2600,7 +2727,7 @@ async def listenpflege_add_ticker(update: Update, context: ContextTypes.DEFAULT_
     if not value:
         await message.reply_text("Ticker darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
         return STATE_LIST_ADD_TICKER
-    context.user_data.setdefault("list_add_payload", {})["ticker"] = value
+    context.user_data.setdefault("list_add_payload", {})["ticker"] = normalize_stock_value(value, "ticker")
     await message.reply_text("ISIN eingeben:", reply_markup=build_text_navigation_keyboard())
     return STATE_LIST_ADD_ISIN
 
@@ -2622,7 +2749,7 @@ async def listenpflege_add_isin(update: Update, context: ContextTypes.DEFAULT_TY
     if not value:
         await message.reply_text("ISIN darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
         return STATE_LIST_ADD_ISIN
-    context.user_data.setdefault("list_add_payload", {})["isin"] = value
+    context.user_data.setdefault("list_add_payload", {})["isin"] = normalize_stock_value(value, "isin")
     await message.reply_text("WKN eingeben:", reply_markup=build_text_navigation_keyboard())
     return STATE_LIST_ADD_WKN
 
@@ -2645,7 +2772,7 @@ async def listenpflege_add_wkn(update: Update, context: ContextTypes.DEFAULT_TYP
         await message.reply_text("WKN darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
         return STATE_LIST_ADD_WKN
     payload = context.user_data.setdefault("list_add_payload", {})
-    payload["wkn"] = value
+    payload["wkn"] = normalize_stock_value(value, "wkn")
     try:
         validate_stock_entry_payload(payload, await run_blocking(collect_stock_entries))
     except Exception as exc:
@@ -2653,17 +2780,83 @@ async def listenpflege_add_wkn(update: Update, context: ContextTypes.DEFAULT_TYP
         cleanup_listenpflege_context(context)
         return ConversationHandler.END
 
-    await message.reply_text(
-        "Neuen Eintrag speichern?\n\n" + format_stock_entry(payload),
-        reply_markup=build_option_keyboard(
-            [
-                ("Speichern", f"{CALLBACK_PREFIX_LIST_CONFIRM}add_save"),
-                ("Zurueck", f"{CALLBACK_PREFIX_LIST_CONFIRM}add_back"),
-                ("Abbrechen", f"{CALLBACK_PREFIX_LIST_CONFIRM}cancel"),
-            ]
-        ),
-    )
-    return STATE_LIST_ADD_CONFIRM
+    await show_list_add_optional_menu(message, context, reply_markup=build_text_navigation_keyboard())
+    return STATE_LIST_ADD_OPTIONAL_MENU
+
+
+async def listenpflege_add_optional_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    if query is None:
+        return STATE_LIST_ADD_OPTIONAL_MENU
+    await query.answer()
+    action = query.data.removeprefix(CALLBACK_PREFIX_LIST_OPTIONAL)
+    if action == "cancel":
+        await query.edit_message_text("Listenpflege abgebrochen.")
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if action == "back":
+        payload = context.user_data.setdefault("list_add_payload", {})
+        payload.pop("wkn", None)
+        await query.edit_message_text("WKN eingeben:")
+        if query.message is not None:
+            await query.message.reply_text("WKN eingeben:", reply_markup=build_text_navigation_keyboard())
+        return STATE_LIST_ADD_WKN
+    if action == "save":
+        payload = context.user_data.get("list_add_payload", {})
+        try:
+            validate_stock_entry_payload(payload, await run_blocking(collect_stock_entries))
+        except Exception as exc:
+            await query.edit_message_text(f"Validierung fehlgeschlagen: {exc}")
+            cleanup_listenpflege_context(context)
+            return ConversationHandler.END
+        await query.edit_message_text(
+            "Neuen Eintrag speichern?\n\n" + format_stock_entry(payload),
+            reply_markup=build_option_keyboard(
+                [
+                    ("Speichern", f"{CALLBACK_PREFIX_LIST_CONFIRM}add_save"),
+                    ("Zurueck", f"{CALLBACK_PREFIX_LIST_CONFIRM}add_back"),
+                    ("Abbrechen", f"{CALLBACK_PREFIX_LIST_CONFIRM}cancel"),
+                ]
+            ),
+        )
+        return STATE_LIST_ADD_CONFIRM
+
+    context.user_data["list_add_optional_field"] = action
+    prompt = stock_optional_field_prompt(action)
+    await query.edit_message_text(prompt)
+    if query.message is not None:
+        await query.message.reply_text(prompt, reply_markup=build_text_navigation_keyboard())
+    return STATE_LIST_ADD_OPTIONAL_VALUE
+
+
+async def listenpflege_add_optional_value(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    message = update.effective_message
+    if message is None:
+        return STATE_LIST_ADD_OPTIONAL_VALUE
+    nav = listenpflege_text_nav_choice(message)
+    if nav == "cancel":
+        await message.reply_text("Listenpflege abgebrochen.", reply_markup=ReplyKeyboardRemove())
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if nav == "back":
+        await show_list_add_optional_menu(message, context, reply_markup=ReplyKeyboardRemove())
+        return STATE_LIST_ADD_OPTIONAL_MENU
+
+    field_name = context.user_data.get("list_add_optional_field", "")
+    if field_name not in OPTIONAL_STOCK_FIELDS:
+        await message.reply_text("Bearbeitungskontext fehlt. Bitte /listenpflege neu starten.", reply_markup=ReplyKeyboardRemove())
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+
+    value = message.text.strip()
+    if not value:
+        await message.reply_text("Wert darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
+        return STATE_LIST_ADD_OPTIONAL_VALUE
+
+    payload = context.user_data.setdefault("list_add_payload", {})
+    payload[field_name] = normalize_stock_value(value, field_name)
+    await show_list_add_optional_menu(message, context, reply_markup=ReplyKeyboardRemove())
+    return STATE_LIST_ADD_OPTIONAL_MENU
 
 
 async def listenpflege_add_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -2673,10 +2866,17 @@ async def listenpflege_add_confirm(update: Update, context: ContextTypes.DEFAULT
     await query.answer()
     action = query.data.removeprefix(CALLBACK_PREFIX_LIST_CONFIRM)
     if action == "add_back":
-        await query.edit_message_text("WKN eingeben:")
+        payload = context.user_data.get("list_add_payload", {})
+        await query.edit_message_text(
+            "Zusatzfelder waehlen oder speichern:",
+            reply_markup=build_list_optional_menu_keyboard(payload),
+        )
         if query.message is not None:
-            await query.message.reply_text("WKN eingeben:", reply_markup=build_text_navigation_keyboard())
-        return STATE_LIST_ADD_WKN
+            await query.message.reply_text(
+                "Zurueck zum Zusatzfelder-Menue.",
+                reply_markup=ReplyKeyboardRemove(),
+            )
+        return STATE_LIST_ADD_OPTIONAL_MENU
     if action == "cancel":
         await query.edit_message_text("Listenpflege abgebrochen.")
         cleanup_listenpflege_context(context)
@@ -2825,18 +3025,7 @@ async def listenpflege_pick_entry(update: Update, context: ContextTypes.DEFAULT_
 
     await query.edit_message_text(
         "Welches Feld bearbeiten?\n\n" + format_stock_entry(entry),
-        reply_markup=build_option_keyboard(
-            [
-                ("Name", f"{CALLBACK_PREFIX_LIST_FIELD}name"),
-                ("Ticker", f"{CALLBACK_PREFIX_LIST_FIELD}ticker"),
-                ("ISIN", f"{CALLBACK_PREFIX_LIST_FIELD}isin"),
-                ("WKN", f"{CALLBACK_PREFIX_LIST_FIELD}wkn"),
-                ("Kategorie", f"{CALLBACK_PREFIX_LIST_FIELD}category"),
-                ("Subkategorie", f"{CALLBACK_PREFIX_LIST_FIELD}subcategory"),
-                ("Zurueck", f"{CALLBACK_PREFIX_LIST_FIELD}back"),
-                ("Abbrechen", f"{CALLBACK_PREFIX_LIST_FIELD}cancel"),
-            ]
-        ),
+        reply_markup=build_stock_field_choice_keyboard(),
     )
     return STATE_LIST_EDIT_FIELD
 
@@ -2859,9 +3048,12 @@ async def listenpflege_edit_field(update: Update, context: ContextTypes.DEFAULT_
         cleanup_listenpflege_context(context)
         return ConversationHandler.END
     context.user_data["list_edit_field"] = field_name
-    await query.edit_message_text(f"Neuen Wert fuer {field_name} eingeben:")
+    await query.edit_message_text(f"Neuen Wert fuer {STOCK_FIELD_LABELS.get(field_name, field_name)} eingeben:")
     if query.message is not None:
-        await query.message.reply_text(f"Neuen Wert fuer {field_name} eingeben:", reply_markup=build_text_navigation_keyboard())
+        await query.message.reply_text(
+            f"Neuen Wert fuer {STOCK_FIELD_LABELS.get(field_name, field_name)} eingeben:",
+            reply_markup=build_text_navigation_keyboard(),
+        )
     return STATE_LIST_EDIT_VALUE
 
 
@@ -2882,24 +3074,9 @@ async def listenpflege_edit_value(update: Update, context: ContextTypes.DEFAULT_
         )
         await message.reply_text(
             "Feld waehlen:",
-            reply_markup=build_option_keyboard(
-                [
-                    ("Name", f"{CALLBACK_PREFIX_LIST_FIELD}name"),
-                    ("Ticker", f"{CALLBACK_PREFIX_LIST_FIELD}ticker"),
-                    ("ISIN", f"{CALLBACK_PREFIX_LIST_FIELD}isin"),
-                    ("WKN", f"{CALLBACK_PREFIX_LIST_FIELD}wkn"),
-                    ("Kategorie", f"{CALLBACK_PREFIX_LIST_FIELD}category"),
-                    ("Subkategorie", f"{CALLBACK_PREFIX_LIST_FIELD}subcategory"),
-                    ("Zurueck", f"{CALLBACK_PREFIX_LIST_FIELD}back"),
-                    ("Abbrechen", f"{CALLBACK_PREFIX_LIST_FIELD}cancel"),
-                ]
-            ),
+            reply_markup=build_stock_field_choice_keyboard(),
         )
         return STATE_LIST_EDIT_FIELD
-    new_value = message.text.strip()
-    if not new_value:
-        await message.reply_text("Wert darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
-        return STATE_LIST_EDIT_VALUE
     entry = dict(context.user_data.get("list_edit_entry", {}))
     field_name = context.user_data.get("list_edit_field", "")
     if not field_name or not entry:
@@ -2907,8 +3084,13 @@ async def listenpflege_edit_value(update: Update, context: ContextTypes.DEFAULT_
         cleanup_listenpflege_context(context)
         return ConversationHandler.END
 
+    new_value = message.text.strip()
+    if not new_value and field_name not in OPTIONAL_STOCK_FIELDS:
+        await message.reply_text("Wert darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
+        return STATE_LIST_EDIT_VALUE
+
     updated_preview = dict(entry)
-    updated_preview[field_name] = new_value
+    updated_preview[field_name] = normalize_stock_value(new_value, field_name)
     try:
         validate_stock_entry_payload(updated_preview, await run_blocking(collect_stock_entries), current_query=entry["query"])
     except Exception as exc:
@@ -2939,18 +3121,7 @@ async def listenpflege_edit_confirm(update: Update, context: ContextTypes.DEFAUL
         entry = dict(context.user_data.get("list_edit_entry", {}))
         await query.edit_message_text(
             "Welches Feld bearbeiten?\n\n" + format_stock_entry(entry),
-            reply_markup=build_option_keyboard(
-                [
-                    ("Name", f"{CALLBACK_PREFIX_LIST_FIELD}name"),
-                    ("Ticker", f"{CALLBACK_PREFIX_LIST_FIELD}ticker"),
-                    ("ISIN", f"{CALLBACK_PREFIX_LIST_FIELD}isin"),
-                    ("WKN", f"{CALLBACK_PREFIX_LIST_FIELD}wkn"),
-                    ("Kategorie", f"{CALLBACK_PREFIX_LIST_FIELD}category"),
-                    ("Subkategorie", f"{CALLBACK_PREFIX_LIST_FIELD}subcategory"),
-                    ("Zurueck", f"{CALLBACK_PREFIX_LIST_FIELD}back"),
-                    ("Abbrechen", f"{CALLBACK_PREFIX_LIST_FIELD}cancel"),
-                ]
-            ),
+            reply_markup=build_stock_field_choice_keyboard(),
         )
         if query.message is not None:
             await query.message.reply_text("Navigation beendet.", reply_markup=ReplyKeyboardRemove())
@@ -2971,7 +3142,7 @@ async def listenpflege_edit_confirm(update: Update, context: ContextTypes.DEFAUL
         original_category,
         original_subcategory,
         original_query or updated_entry.get("query", ""),
-        {key: updated_entry[key] for key in ["category", "subcategory", "name", "ticker", "isin", "wkn"]},
+        {key: updated_entry.get(key, "") for key in REQUIRED_STOCK_FIELDS + OPTIONAL_STOCK_FIELDS},
     )
     await query.edit_message_text(
         "Eintrag aktualisiert.\n\n" + format_stock_entry(merged) + f"\n\nBackup: {backup_path.name}"
@@ -3130,6 +3301,12 @@ def build_application() -> Application:
                 ],
                 STATE_LIST_ADD_WKN: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_wkn)
+                ],
+                STATE_LIST_ADD_OPTIONAL_MENU: [
+                    CallbackQueryHandler(listenpflege_add_optional_menu, pattern=f"^{CALLBACK_PREFIX_LIST_OPTIONAL}")
+                ],
+                STATE_LIST_ADD_OPTIONAL_VALUE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_optional_value)
                 ],
                 STATE_LIST_ADD_CONFIRM: [
                     CallbackQueryHandler(listenpflege_add_confirm, pattern=f"^{CALLBACK_PREFIX_LIST_CONFIRM}")

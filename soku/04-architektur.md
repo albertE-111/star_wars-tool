@@ -98,6 +98,9 @@ Hilfsskript fuer DAX-bezogene Stammdaten beziehungsweise XML-Erzeugung.
 ### Statische oder semistatische Daten
 
 - `config/stock_categories/stock_categories.xml`
+- Die Datei wird auch interaktiv ueber `/listenpflege` gepflegt.
+- Der Add-Flow fuehrt zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`.
+- Danach koennen per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description` gesetzt werden.
 - `config/app_config.example.json`
 
 ### Laufzeitdaten
@@ -155,6 +158,9 @@ Die Instrumentenliste ist hierarchisch aufgebaut:
       <index>
         <name>...</name>
         <ticker>...</ticker>
+        <ticker_apac>...</ticker_apac>
+        <ticker_eu>...</ticker_eu>
+        <ticker_usa>...</ticker_usa>
         <isin>...</isin>
         <wkn>...</wkn>
         <land>...</land>
@@ -167,3 +173,4 @@ Die Instrumentenliste ist hierarchisch aufgebaut:
 ```
 
 Eintraege koennen je nach Instrument zusaetzliche Felder wie `ticker_apac`, `ticker_eu`, `ticker_europe` oder `ticker_usa` enthalten.
+Fuer einen sauberen marktuebergreifenden `market_brief` sind insbesondere `ticker_usa`, `ticker_eu` und `ticker_apac` sinnvoll, weil sie fuer Global-Lead-Logik, Zeit-Bruecke und Cross-Market-Vergleiche genutzt werden.

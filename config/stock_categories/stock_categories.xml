@@ -215,6 +215,22 @@
         <isin>US80004C2008</isin>
         <wkn>A411ZM</wkn>
       </index>
+      <index>
+        <name>Deutsche Telekom AG</name>
+        <ticker>DTE.DE</ticker>
+        <isin>DE0005557508</isin>
+        <wkn>555750</wkn>
+        <ticker_eu>DTE.DE</ticker_eu>
+      </index>
+      <index>
+        <name>T-Mobile US Inc</name>
+        <ticker>TMUS</ticker>
+        <isin>US8725901040</isin>
+        <wkn>A1T7LU</wkn>
+        <ticker_usa>TMUS</ticker_usa>
+        <ticker_eu>TM5.DE</ticker_eu>
+        <description>T-Mobile US ist der zweitgrößte Mobilfunkanbieter in den USA und das „Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hält.</description>
+      </index>
     </subcategory>
     <subcategory name="KI-Infrastruktur">
       <index>

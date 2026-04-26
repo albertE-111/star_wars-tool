@@ -55,6 +55,8 @@ Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben und ein
 
 - `config/stock_categories/stock_categories.xml`
   Fachliche Stammdaten fuer Indizes, Aktien und Themenlisten.
+  Die Datei wird auch interaktiv ueber `/listenpflege` gepflegt. Der Add-Flow fragt zuerst
+  Pflichtfelder ab und bietet danach per Button-Menue optionale Zusatzfelder an.
 
 - `config/app_config.json`
   Laufzeitkonfiguration fuer Tokens, Zugriffsrechte, Auto-Brief-Einstellungen und Support-Bot-Werte.
@@ -97,12 +99,17 @@ Verwendung der wichtigsten Felder:
 
 - `ticker_apac`, `ticker_eu`, `ticker_usa`
   Markt-spezifische Ticker fuer die Global-Lead-Logik.
+  Diese Felder sind fuer einfache Abfragen nicht zwingend, aber wichtig fuer saubere
+  marktuebergreifende `market_brief`-Laeufe mit Zeit-Bruecke und Cross-Market-Vergleich.
 
 - `isin`, `wkn`, `name`
   Alternative Such- und Identifikationsfelder.
 
 - `land`
   Hilft bei automatischer Marktzuordnung vorhandener Primär-Ticker.
+
+- `tag`, `description`
+  Fachliche Zusatzinformationen fuer Einordnung, Pflege und spaetere Erweiterungen.
 
 ## Wichtige Datenfluesse
 
@@ -139,6 +146,27 @@ Verwendung der wichtigsten Felder:
    - Auto-Market-Brief deaktiviert
    - neue Market-Brief-Fehler
 5. Offene Fehler werden als Incidents gespeichert und koennen im Support-Bot auf geloest gesetzt werden.
+
+### 4. Listenpflege
+
+1. `/listenpflege` startet einen interaktiven Pflege-Workflow fuer `stock_categories.xml`.
+2. Kategorie und Subkategorie werden bevorzugt per Button gewaehlt, koennen bei Bedarf aber neu angelegt werden.
+3. Beim Hinzufuegen werden zuerst die Pflichtfelder abgefragt:
+   - `category`
+   - `subcategory`
+   - `name`
+   - `ticker`
+   - `isin`
+   - `wkn`
+4. Danach folgt ein optionales Button-Menue fuer Zusatzfelder:
+   - `ticker_usa`
+   - `ticker_eu`
+   - `ticker_apac`
+   - `land`
+   - `tag`
+   - `description`
+5. Vor dem Speichern validiert der Bot Pflichtfelder sowie Duplikate bei Ticker, ISIN und WKN.
+6. Beim Speichern wird die XML aktualisiert und zuvor ein Backup angelegt.
 
 ## Laufzeitdateien
 

@@ -23,6 +23,8 @@ Aus dem Code ersichtlich sind unter anderem folgende Commands:
 
 - `/supportbot`: Status und Steuerung des Support-Bots
 - `/listenpflege`: XML-Instrumentenliste pflegen
+- `/listenpflege` fuehrt beim Hinzufuegen zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`
+- `/listenpflege` bietet danach per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description`
 - `/start`: Bot-Startnachricht und Uebersicht
 - `/cancel`: laufende Konversation abbrechen
 
