@@ -683,6 +683,24 @@ def build_auto_brief_menu_text(settings: AutoBriefSettings) -> str:
     )
 
 
+def build_auto_brief_enabled_message(settings: AutoBriefSettings) -> str:
+    next_run, reason = compute_next_auto_brief_run(settings)
+    lines = [
+        "Auto Market Brief aktiviert.",
+        "",
+        format_auto_brief_settings(settings),
+        "",
+    ]
+    if next_run is not None:
+        lines.append(f"Naechster geplanter Lauf: {next_run.strftime('%Y-%m-%d %H:%M:%S')}")
+    else:
+        lines.append(f"Naechster geplanter Lauf: {reason}")
+    lines.append(
+        "Hinweis: Nach dem Aktivieren wird ein alter last_run_at-Wert verworfen, damit ein neuer Lauf nicht blockiert wird."
+    )
+    return "\n".join(lines)
+
+
 def build_auto_brief_menu_keyboard(settings: AutoBriefSettings) -> InlineKeyboardMarkup:
     toggle_label = "Deaktivieren" if settings.enabled else "Aktivieren"
     news_label = "News: An" if settings.with_news_summary else "News: Aus"
@@ -1139,9 +1157,10 @@ async def autobrief_on_command(update: Update, context: ContextTypes.DEFAULT_TYP
     chat = update.effective_chat
     runtime.auto_brief.enabled = True
     runtime.auto_brief.chat_id = chat.id if chat is not None else runtime.auto_brief.chat_id
+    runtime.auto_brief.last_run_at = ""
     persist_auto_brief_settings(runtime)
     configure_auto_brief_job(context.application, runtime)
-    await reply_long(update, "Auto Market Brief aktiviert.\n\n" + format_auto_brief_settings(runtime.auto_brief))
+    await reply_long(update, build_auto_brief_enabled_message(runtime.auto_brief))
 
 
 async def autobrief_off_command(update: Update, context: ContextTypes.DEFAULT_TYPE, runtime: BotRuntime) -> None:
@@ -1167,12 +1186,21 @@ async def autobrief_start_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     action = query.data.removeprefix(CALLBACK_PREFIX_AUTO_MENU)
 
     if action == "toggle_enabled":
+        was_enabled = runtime.auto_brief.enabled
         runtime.auto_brief.enabled = not runtime.auto_brief.enabled
         if query.message is not None and query.message.chat is not None:
             runtime.auto_brief.chat_id = query.message.chat.id
+        if not was_enabled and runtime.auto_brief.enabled:
+            runtime.auto_brief.last_run_at = ""
         persist_auto_brief_settings(runtime)
         configure_auto_brief_job(context.application, runtime)
-        await update_auto_brief_menu(query, runtime)
+        if not was_enabled and runtime.auto_brief.enabled:
+            await query.edit_message_text(
+                build_auto_brief_enabled_message(runtime.auto_brief),
+                reply_markup=build_auto_brief_menu_keyboard(runtime.auto_brief),
+            )
+        else:
+            await update_auto_brief_menu(query, runtime)
         return STATE_AUTO_MENU
 
     if action == "toggle_news":
