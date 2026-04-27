@@ -231,6 +231,15 @@
         <ticker_eu>TM5.DE</ticker_eu>
         <description>T-Mobile US ist der zweitgrößte Mobilfunkanbieter in den USA und das „Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hält.</description>
       </index>
+      <index>
+        <name>Intel Corp.</name>
+        <ticker>INTC</ticker>
+        <isin>US4581401001</isin>
+        <wkn>855681</wkn>
+        <ticker_usa>INTC</ticker_usa>
+        <ticker_eu>INL.DE</ticker_eu>
+        <description>Intel ist einer der weltweit größten Halbleiterhersteller und das Urgestein der Computerchip-Industrie.</description>
+      </index>
     </subcategory>
     <subcategory name="KI-Infrastruktur">
       <index>
