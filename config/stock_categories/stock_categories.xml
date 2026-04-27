@@ -445,6 +445,37 @@
         <ticker_apac>7011.T</ticker_apac>
         <description>Mitsubishi Heavy Industries ist das industrielle Herz der Mitsubishi-Gruppe und ein globaler Gigant im Bereich Schwerindustrie.</description>
       </index>
+      <index>
+        <name>Stammdaten IHI</name>
+        <ticker>7013</ticker>
+        <isin>JP3134800006</isin>
+        <wkn>854347</wkn>
+        <ticker_eu>IWJ.DE</ticker_eu>
+        <ticker_apac>7013.T</ticker_apac>
+        <land>Japan</land>
+        <description>IHI Corporation (früher Ishikawajima-Harima Heavy Industries) ist ein japanischer Industriegigant mit Fokus auf Technologie und Maschinenbau.</description>
+      </index>
+      <index>
+        <name>Subaru Corporation</name>
+        <ticker>7270</ticker>
+        <isin>JP3814800003</isin>
+        <wkn>855686</wkn>
+        <ticker_eu>FHI.DE</ticker_eu>
+        <ticker_apac>7270.T</ticker_apac>
+        <description>Subaru ist weit mehr als nur "Allrad-Autos". Die Sparte Subaru Aerospace ist ein tragender Pfeiler der japanischen Verteidigungsstrategie</description>
+      </index>
+    </subcategory>
+    <subcategory name="Marinetechnik">
+      <index>
+        <name>Kawasaki Heavy</name>
+        <ticker>7012</ticker>
+        <isin>JP3224200000</isin>
+        <wkn>858920</wkn>
+        <ticker_eu>KHE.DE</ticker_eu>
+        <ticker_apac>7012.T</ticker_apac>
+        <tag>Japan</tag>
+        <description>Kawasaki Heavy Industries ist einer der technologisch vielseitigsten Konzerne Japans. Während die Motorradsparte (Kawasaki Motors) nur einen Teil des Geschäfts ausmacht, liegen die</description>
+      </index>
     </subcategory>
   </category>
 </stockCategories>
