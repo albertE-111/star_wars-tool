@@ -2612,7 +2612,7 @@ async def listenpflege_add_subcategory(update: Update, context: ContextTypes.DEF
                 await query.message.reply_text("Neue Subkategorie eingeben:", reply_markup=build_text_navigation_keyboard())
             return STATE_LIST_ADD_SUBCATEGORY
 
-        context.user_data["list_add_subcategory_mode"] = "select"
+        context.user_data["list_add_subcategory_mode"] = "done"
         context.user_data.setdefault("list_add_payload", {})["subcategory"] = value
         if query.message is not None:
             await query.message.reply_text("Name der Aktie eingeben:", reply_markup=build_text_navigation_keyboard())
@@ -2657,6 +2657,7 @@ async def listenpflege_add_subcategory(update: Update, context: ContextTypes.DEF
         await message.reply_text("Subkategorie darf nicht leer sein. Bitte erneut eingeben.", reply_markup=build_text_navigation_keyboard())
         return STATE_LIST_ADD_SUBCATEGORY
     payload["subcategory"] = value
+    context.user_data["list_add_subcategory_mode"] = "done"
     await message.reply_text("Name der Aktie eingeben:", reply_markup=build_text_navigation_keyboard())
     await message.reply_text(" ", reply_markup=build_list_add_name_keyboard())
     return STATE_LIST_ADD_NAME
