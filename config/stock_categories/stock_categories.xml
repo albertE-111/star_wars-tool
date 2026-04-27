@@ -434,4 +434,17 @@
       </index>
     </subcategory>
   </category>
+  <category name="Rüstungsindustrie">
+    <subcategory name="Luftfahrt (Aerospace)">
+      <index>
+        <name>Mitsubishi Heavy Industries</name>
+        <ticker>7011</ticker>
+        <isin>JP3900000005</isin>
+        <wkn>853314</wkn>
+        <ticker_eu>MHI.DE</ticker_eu>
+        <ticker_apac>7011.T</ticker_apac>
+        <description>Mitsubishi Heavy Industries ist das industrielle Herz der Mitsubishi-Gruppe und ein globaler Gigant im Bereich Schwerindustrie.</description>
+      </index>
+    </subcategory>
+  </category>
 </stockCategories>
