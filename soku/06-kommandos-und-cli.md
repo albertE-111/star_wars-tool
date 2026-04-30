@@ -55,27 +55,21 @@ Im Support-Bot sind unter anderem diese Commands registriert:
 
 Hinweis: Die durch `/autobrief_chat_here` oder `/autobrief_chat_set` gesetzte Ziel-Chat-ID wird dauerhaft in `config/app_config.json` unter `auto_market_brief.chat_id` gespeichert.
 
-## Telegram-Kommandos des Live-Monitoring-Bots
+## Telegram-Menue des Live-Monitoring-Bots
 
-Im separaten Live-Monitoring-Bot `live_monitoring_bot.py` sind die Commands nach Arbeitsablauf sortiert:
+Im separaten Live-Monitoring-Bot `live_monitoring_bot.py` ist im Telegram-Bot-Menue nur ein Command sichtbar:
 
-Einrichtung:
+- `/live_monitoring`: Live-Monitoring-Menue oeffnen
 
-- `/start`: aktuellen Chat als Ziel fuer Preis-Trigger speichern
-- `/monitoring_setting`: interaktive Preisregel bearbeiten
+Nach dem Klick erscheinen Buttons fuer die eigentlichen Aktionen:
 
-Uebersicht:
+- `Preisregel bearbeiten`: fuehrt ueber Kategorie, Subkategorie und Aktie zur Regelbearbeitung
+- `Aktive Regeln`: Anzahl aktiver Regeln anzeigen, je Regel mit Button `Aktienname / Kurs` zum Bearbeiten und Button `Aus` zum Ausschalten
+- `Status`: Ziel-Chat, Poll-Intervall und aktive Regeln anzeigen
+- `Diesen Chat speichern`: aktuellen Chat als Ziel fuer Preis-Trigger speichern
+- `Bot testen`: Ping-Test ausfuehren
 
-- `/rules`: aktive Preisregeln anzeigen
-- `/status`: Ziel-Chat, Poll-Intervall und aktive Regeln anzeigen
-
-Bedienung:
-
-- `/cancel`: laufende Bearbeitung abbrechen
-- `/help`: Befehlsuebersicht anzeigen
-- `/ping`: Bot testen
-
-Der Dialog von `/monitoring_setting` fuehrt ueber Kategorie, Subkategorie und Aktie zur Regelbearbeitung. Dort koennen Monitoring ein- oder ausgeschaltet, Zielpreis, Bedingung und `interval_min` gesetzt sowie der aktuelle Kurs abgefragt werden.
+Die Regelbearbeitung kann Monitoring ein- oder ausschalten, Zielpreis, Bedingung und `interval_min` setzen sowie den aktuellen Kurs abfragen.
 
 ## Wichtige lokale CLI-Skripte
 

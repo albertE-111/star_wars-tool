@@ -64,12 +64,14 @@ STATE_LIVE_TARGET = 5
 STATE_LIVE_CONDITION = 6
 STATE_LIVE_INTERVAL = 7
 STATE_LIVE_INTERVAL_CUSTOM = 8
+STATE_MAIN_MENU = 20
 CALLBACK_PREFIX_LIVE_CATEGORY = "lmc:"
 CALLBACK_PREFIX_LIVE_SUBCATEGORY = "lms:"
 CALLBACK_PREFIX_LIVE_ENTRY = "lme:"
 CALLBACK_PREFIX_LIVE_MENU = "lmm:"
 CALLBACK_PREFIX_LIVE_CONDITION = "lmco:"
 CALLBACK_PREFIX_LIVE_INTERVAL = "lmi:"
+CALLBACK_PREFIX_MAIN_MENU = "lmmain:"
 INTERVAL_PRESETS = [1, 5, 15, 30, 60]
 
 
@@ -392,7 +394,7 @@ async def update_selected_monitoring_config(
 ) -> tuple[Path, dict[str, str], dict | None]:
     selection = context.user_data.get("live_monitor_selection")
     if not isinstance(selection, dict):
-        raise RuntimeError("Bearbeitungskontext fehlt. Bitte /monitoring_setting neu starten.")
+        raise RuntimeError("Bearbeitungskontext fehlt. Bitte /live_monitoring neu starten.")
 
     backup_path, config = await asyncio.to_thread(
         update_live_monitoring_config,
@@ -422,9 +424,9 @@ async def show_monitor_menu(
     if entry is None:
         cleanup_live_monitoring_context(context)
         if query is not None:
-            await query.edit_message_text("Eintrag wurde nicht gefunden. Bitte /monitoring_setting neu starten.")
+            await query.edit_message_text("Eintrag wurde nicht gefunden. Bitte /live_monitoring neu starten.")
         elif message is not None:
-            await message.reply_text("Eintrag wurde nicht gefunden. Bitte /monitoring_setting neu starten.")
+            await message.reply_text("Eintrag wurde nicht gefunden. Bitte /live_monitoring neu starten.")
         return ConversationHandler.END
 
     text = format_live_config(entry, action_message=action_message, price_line=price_line)
@@ -483,17 +485,136 @@ async def send_long(bot, chat_id: int, text: str) -> None:
 def format_command_overview() -> str:
     return (
         "Live-Monitoring-Bot\n\n"
-        "Einrichtung:\n"
-        "/start - aktuellen Chat als Ziel fuer Preis-Trigger speichern\n"
-        "/monitoring_setting - Preisregel bearbeiten\n\n"
-        "Uebersicht:\n"
-        "/rules - aktive Preisregeln anzeigen\n"
-        "/status - Bot-Status anzeigen\n\n"
-        "Bedienung:\n"
-        "/cancel - laufende Bearbeitung abbrechen\n"
-        "/help - diese Uebersicht anzeigen\n"
-        "/ping - Bot testen"
+        "Waehle eine Aktion:"
     )
+
+
+def build_main_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Preisregel bearbeiten", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}settings")],
+            [
+                InlineKeyboardButton("Aktive Regeln", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}rules"),
+                InlineKeyboardButton("Status", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}status"),
+            ],
+            [
+                InlineKeyboardButton("Diesen Chat speichern", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}target_chat"),
+                InlineKeyboardButton("Bot testen", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}ping"),
+            ],
+            [InlineKeyboardButton("Schliessen", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}done")],
+        ]
+    )
+
+
+def get_active_monitor_entries() -> list[dict]:
+    entries = []
+    for entry in collect_monitor_entries(str(XML_PATH)):
+        if parse_enabled(entry.get("live_monitoring", {}).get("enabled")):
+            entries.append(entry)
+    return sorted(entries, key=lambda item: (item.get("category", ""), item.get("subcategory", ""), item.get("name", "")))
+
+
+def build_active_rules_text(entries: list[dict], action_message: str = "") -> str:
+    count = len(entries)
+    label = "aktive Regel" if count == 1 else "aktive Regeln"
+    lines = [f"{count} {label}"]
+    if action_message:
+        lines.extend(["", action_message])
+    return "\n".join(lines)
+
+
+def build_active_rules_keyboard(entries: list[dict], labels: list[str]) -> InlineKeyboardMarkup:
+    rows: list[list[InlineKeyboardButton]] = []
+    for index, entry in enumerate(entries):
+        label = labels[index] if index < len(labels) else str(entry.get("name") or f"Regel {index + 1}")
+        rows.append(
+            [
+                InlineKeyboardButton(label[:58], callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}rule_edit:{index}"),
+                InlineKeyboardButton("Aus", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}rule_off:{index}"),
+            ]
+        )
+    rows.append([InlineKeyboardButton("Zurueck", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}back")])
+    return InlineKeyboardMarkup(rows)
+
+
+async def build_active_rule_button_labels(context: ContextTypes.DEFAULT_TYPE, entries: list[dict]) -> list[str]:
+    if not entries:
+        return []
+    if "yfinance" not in context.application.bot_data:
+        context.application.bot_data["yfinance"] = load_yfinance()
+    yf = context.application.bot_data["yfinance"]
+
+    async def build_label(entry: dict) -> str:
+        name = str(entry.get("name") or entry.get("symbol") or "Unbekannt").strip()
+        symbol = entry.get("symbol") or resolve_monitor_symbol(entry)
+        if not symbol:
+            return f"{name} / Kurs -"
+        try:
+            price, currency = await asyncio.to_thread(fetch_live_price, yf, symbol)
+        except Exception as exc:
+            append_event(
+                "live_monitoring_bot",
+                "ERROR",
+                f"Kursabruf fuer aktive Regel fehlgeschlagen fuer {symbol}: {exc}",
+                {"symbol": symbol, "name": name},
+            )
+            return f"{name} / Kurs -"
+        if price is None:
+            return f"{name} / Kurs -"
+        suffix = f" {currency}" if currency else ""
+        return f"{name} / {price:.2f}{suffix}"
+
+    return await asyncio.gather(*(build_label(entry) for entry in entries))
+
+
+async def show_active_rules_menu(
+    query,
+    context: ContextTypes.DEFAULT_TYPE,
+    action_message: str = "",
+) -> int:
+    entries = get_active_monitor_entries()
+    context.user_data["active_rule_entries"] = entries
+    if not entries:
+        await query.edit_message_text(
+            ("Keine aktiven Live-Monitoring-Regeln gefunden." if not action_message else action_message),
+            reply_markup=build_main_menu_keyboard(),
+        )
+        return STATE_MAIN_MENU
+
+    labels = await build_active_rule_button_labels(context, entries)
+    await query.edit_message_text(
+        build_active_rules_text(entries, action_message=action_message),
+        reply_markup=build_active_rules_keyboard(entries, labels),
+    )
+    return STATE_MAIN_MENU
+
+
+async def send_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str = "") -> None:
+    runtime: LiveMonitoringRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+
+    message_text = text or format_command_overview()
+    query = update.callback_query
+    message = update.effective_message
+    if query is not None:
+        await query.edit_message_text(message_text, reply_markup=build_main_menu_keyboard())
+    elif message is not None:
+        await message.reply_text(message_text, reply_markup=build_main_menu_keyboard())
+
+
+async def live_monitoring_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await send_main_menu(update, context)
+    return STATE_MAIN_MENU
+
+
+async def save_current_chat_as_target(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    runtime: LiveMonitoringRuntime = context.application.bot_data["runtime"]
+    chat = update.effective_chat
+    if chat is None:
+        return "Kein Chat gefunden."
+    save_target_chat(runtime, chat.id)
+    return "Dieser Chat wurde als Ziel fuer Preis-Trigger gespeichert."
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -501,25 +622,19 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     if not await require_access(update, runtime):
         return
 
-    chat = update.effective_chat
     message = update.effective_message
-    if chat is not None:
-        save_target_chat(runtime, chat.id)
+    result = await save_current_chat_as_target(update, context)
     if message is not None:
         await message.reply_text(
             "Live-Monitoring-Bot aktiv.\n"
-            "Dieser Chat wurde als Ziel fuer Preis-Trigger gespeichert.\n\n"
-            + format_command_overview()
+            f"{result}\n\n"
+            "Oeffne das Menue mit /live_monitoring.",
+            reply_markup=build_main_menu_keyboard(),
         )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    runtime: LiveMonitoringRuntime = context.application.bot_data["runtime"]
-    if not await require_access(update, runtime):
-        return
-    message = update.effective_message
-    if message is not None:
-        await message.reply_text(format_command_overview())
+    await send_main_menu(update, context)
 
 
 async def ping_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -558,23 +673,107 @@ async def rules_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await message.reply_text(chunk)
 
 
-async def monitoring_setting_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def send_rules_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = update.effective_message
+    if message is None:
+        return
+    items = load_monitor_items(str(XML_PATH))
+    if not items:
+        await message.reply_text("Keine aktiven Live-Monitoring-Regeln gefunden.")
+        return
+    text = "Aktive Live-Monitoring-Regeln:\n" + "\n".join(format_monitor_item(item) for item in items)
+    for chunk in split_message(text):
+        await message.reply_text(chunk)
+
+
+async def main_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     runtime: LiveMonitoringRuntime = context.application.bot_data["runtime"]
     if not await require_access(update, runtime):
         return ConversationHandler.END
 
-    cleanup_live_monitoring_context(context)
-    categories = await asyncio.to_thread(load_categories)
-    context.user_data["live_categories"] = categories
-    context.user_data["live_subcategories"] = await asyncio.to_thread(load_subcategories)
+    query = update.callback_query
+    if query is None:
+        return STATE_MAIN_MENU
+    await query.answer()
+    action = query.data.removeprefix(CALLBACK_PREFIX_MAIN_MENU)
 
-    message = update.effective_message
-    if message is not None:
-        await message.reply_text(
+    if action == "done":
+        await query.edit_message_text("Live-Monitoring-Menue geschlossen.")
+        return ConversationHandler.END
+
+    if action == "back":
+        await query.edit_message_text(format_command_overview(), reply_markup=build_main_menu_keyboard())
+        return STATE_MAIN_MENU
+
+    if action == "target_chat":
+        result = await save_current_chat_as_target(update, context)
+        await query.edit_message_text(
+            result + "\n\nWaehle eine Aktion:",
+            reply_markup=build_main_menu_keyboard(),
+        )
+        return STATE_MAIN_MENU
+
+    if action == "status":
+        await query.edit_message_text(
+            format_status(runtime),
+            reply_markup=build_main_menu_keyboard(),
+        )
+        return STATE_MAIN_MENU
+
+    if action == "rules":
+        return await show_active_rules_menu(query, context)
+
+    if action.startswith("rule_edit:") or action.startswith("rule_off:"):
+        entries: list[dict] = context.user_data.get("active_rule_entries", [])
+        try:
+            selected = entries[int(action.rsplit(":", 1)[1])]
+        except (ValueError, IndexError):
+            return await show_active_rules_menu(query, context, "Auswahl ist nicht mehr gueltig.")
+
+        context.user_data["live_monitor_selection"] = {
+            "category": selected.get("category", ""),
+            "subcategory": selected.get("subcategory", ""),
+            "query": selected.get("query", ""),
+        }
+        context.user_data["live_monitor_entry"] = selected
+        context.user_data["live_selected_category"] = selected.get("category", "")
+        context.user_data["live_selected_subcategory"] = selected.get("subcategory", "")
+        context.user_data["live_entry_options"] = filter_monitor_entries(
+            str(selected.get("category", "")),
+            str(selected.get("subcategory", "")),
+        )
+        context.user_data["live_entry_page"] = 0
+
+        if action.startswith("rule_edit:"):
+            return await show_monitor_menu(update, context)
+
+        try:
+            backup_path, _, _ = await update_selected_monitoring_config(context, {"enabled": False})
+        except Exception as exc:
+            return await show_active_rules_menu(query, context, f"Ausschalten fehlgeschlagen: {exc}")
+        return await show_active_rules_menu(
+            query,
+            context,
+            f"{selected.get('name', 'Regel')} ausgeschaltet.\nBackup: {backup_path.name}",
+        )
+
+    if action == "ping":
+        await query.edit_message_text("pong", reply_markup=build_main_menu_keyboard())
+        return STATE_MAIN_MENU
+
+    if action == "settings":
+        cleanup_live_monitoring_context(context)
+        categories = await asyncio.to_thread(load_categories)
+        context.user_data["live_categories"] = categories
+        context.user_data["live_subcategories"] = await asyncio.to_thread(load_subcategories)
+        await query.edit_message_text(
             "Live-Monitoring einrichten.\nKategorie waehlen:",
             reply_markup=build_index_keyboard(categories, CALLBACK_PREFIX_LIVE_CATEGORY, include_all=True),
         )
-    return STATE_LIVE_CATEGORY
+        return STATE_LIVE_CATEGORY
+
+    await query.edit_message_text("Ungueltige Auswahl.", reply_markup=build_main_menu_keyboard())
+    return STATE_MAIN_MENU
 
 
 async def monitoring_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -609,7 +808,7 @@ async def monitoring_category(update: Update, context: ContextTypes.DEFAULT_TYPE
     try:
         category = categories[int(raw)]
     except (ValueError, IndexError):
-        await query.edit_message_text("Ungueltige Auswahl. Bitte /monitoring_setting neu starten.")
+        await query.edit_message_text("Ungueltige Auswahl. Bitte /live_monitoring neu starten.")
         cleanup_live_monitoring_context(context)
         return ConversationHandler.END
 
@@ -672,7 +871,7 @@ async def monitoring_subcategory(update: Update, context: ContextTypes.DEFAULT_T
         try:
             subcategory = subcategories[int(raw)]
         except (ValueError, IndexError):
-            await query.edit_message_text("Ungueltige Auswahl. Bitte /monitoring_setting neu starten.")
+            await query.edit_message_text("Ungueltige Auswahl. Bitte /live_monitoring neu starten.")
             cleanup_live_monitoring_context(context)
             return ConversationHandler.END
 
@@ -741,7 +940,7 @@ async def monitoring_entry(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     try:
         entry = entries[int(raw)]
     except (ValueError, IndexError):
-        await query.edit_message_text("Ungueltige Auswahl. Bitte /monitoring_setting neu starten.")
+        await query.edit_message_text("Ungueltige Auswahl. Bitte /live_monitoring neu starten.")
         cleanup_live_monitoring_context(context)
         return ConversationHandler.END
 
@@ -767,7 +966,7 @@ async def monitoring_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     action = query.data.removeprefix(CALLBACK_PREFIX_LIVE_MENU)
     entry = refresh_selected_monitor_entry(context)
     if entry is None:
-        await query.edit_message_text("Eintrag wurde nicht gefunden. Bitte /monitoring_setting neu starten.")
+        await query.edit_message_text("Eintrag wurde nicht gefunden. Bitte /live_monitoring neu starten.")
         cleanup_live_monitoring_context(context)
         return ConversationHandler.END
 
@@ -842,7 +1041,7 @@ async def monitoring_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             return await show_monitor_menu(update, context, price_line=f"Kein Kurs fuer {symbol} erhalten.")
         return await show_monitor_menu(update, context, price_line=f"Aktueller Kurs: {price:.2f} {currency or ''}")
 
-    await query.edit_message_text("Ungueltige Auswahl. Bitte /monitoring_setting neu starten.")
+    await query.edit_message_text("Ungueltige Auswahl. Bitte /live_monitoring neu starten.")
     cleanup_live_monitoring_context(context)
     return ConversationHandler.END
 
@@ -908,7 +1107,7 @@ async def monitoring_condition(update: Update, context: ContextTypes.DEFAULT_TYP
     if action == "back":
         return await show_monitor_menu(update, context)
     if action not in {"above", "below"}:
-        await query.edit_message_text("Ungueltige Auswahl. Bitte /monitoring_setting neu starten.")
+        await query.edit_message_text("Ungueltige Auswahl. Bitte /live_monitoring neu starten.")
         cleanup_live_monitoring_context(context)
         return ConversationHandler.END
 
@@ -945,7 +1144,7 @@ async def monitoring_interval(update: Update, context: ContextTypes.DEFAULT_TYPE
             )
         return STATE_LIVE_INTERVAL_CUSTOM
     if not action.startswith("set:"):
-        await query.edit_message_text("Ungueltige Auswahl. Bitte /monitoring_setting neu starten.")
+        await query.edit_message_text("Ungueltige Auswahl. Bitte /live_monitoring neu starten.")
         cleanup_live_monitoring_context(context)
         return ConversationHandler.END
 
@@ -1078,13 +1277,7 @@ async def live_error_handler(update: object, context: ContextTypes.DEFAULT_TYPE)
 async def post_init(application: Application) -> None:
     await application.bot.set_my_commands(
         [
-            BotCommand("start", "Chat als Trigger-Ziel setzen"),
-            BotCommand("monitoring_setting", "Preisregel bearbeiten"),
-            BotCommand("rules", "Aktive Preisregeln anzeigen"),
-            BotCommand("status", "Bot-Status anzeigen"),
-            BotCommand("cancel", "Bearbeitung abbrechen"),
-            BotCommand("help", "Befehle anzeigen"),
-            BotCommand("ping", "Bot testen"),
+            BotCommand("live_monitoring", "Live-Monitoring oeffnen"),
         ]
     )
 
@@ -1101,9 +1294,12 @@ def build_application() -> Application:
     application.add_handler(
         ConversationHandler(
             entry_points=[
-                CommandHandler("monitoring_setting", monitoring_setting_command),
+                CommandHandler("live_monitoring", live_monitoring_command),
             ],
             states={
+                STATE_MAIN_MENU: [
+                    CallbackQueryHandler(main_menu_callback, pattern=f"^{CALLBACK_PREFIX_MAIN_MENU}")
+                ],
                 STATE_LIVE_CATEGORY: [
                     CallbackQueryHandler(monitoring_category, pattern=f"^{CALLBACK_PREFIX_LIVE_CATEGORY}")
                 ],

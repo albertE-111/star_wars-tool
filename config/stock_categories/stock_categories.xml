@@ -682,8 +682,8 @@
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
         <live_monitoring>
-          <enabled>false</enabled>
-          <target_price />
+          <enabled>true</enabled>
+          <target_price>4600</target_price>
           <condition>above</condition>
           <interval_min>5</interval_min>
         </live_monitoring>
@@ -726,7 +726,7 @@
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
         <live_monitoring>
-          <enabled>true</enabled>
+          <enabled>false</enabled>
           <target_price>100</target_price>
           <condition>above</condition>
           <interval_min>5</interval_min>
@@ -782,7 +782,7 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
         <live_monitoring>
           <enabled>false</enabled>
-          <target_price />
+          <target_price>165</target_price>
           <condition>above</condition>
           <interval_min>5</interval_min>
         </live_monitoring>
@@ -856,7 +856,7 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
         <live_monitoring>
           <enabled>false</enabled>
-          <target_price />
+          <target_price>10</target_price>
           <condition>above</condition>
           <interval_min>5</interval_min>
         </live_monitoring>
