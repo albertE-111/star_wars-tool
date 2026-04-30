@@ -2,7 +2,7 @@
 
 ## Zweck
 
-Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben und einen separaten Support-Bot fuer Monitoring, Alerting und Prozesssteuerung. Die Fachlogik fuer Marktanalyse, globale Vorlauf-Signale, Artikelzusammenfassungen und Batch-Laeufe ist in eigenstaendigen Python-Modulen gekapselt.
+Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben, einen separaten Support-Bot fuer Monitoring, Alerting und Prozesssteuerung sowie einen eigenen Live-Monitoring-Bot fuer Preisalarme. Die Fachlogik fuer Marktanalyse, globale Vorlauf-Signale, Artikelzusammenfassungen, Preisregeln und Batch-Laeufe ist in eigenstaendigen Python-Modulen gekapselt.
 
 ## Kernkomponenten
 
@@ -22,14 +22,19 @@ Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben und ein
   - Event-/Fehlerauswertung
   - Incident-Tracking fuer Market-Brief-Fehler
   - Alerting bei Bot-Ausfall, stale Heartbeat und deaktiviertem Auto-Market-Brief
+  - Start/Stop/Restart fuer Haupt-Bot und Live-Monitoring-Bot
+
+- `live_monitoring_bot.py`
+  Separater Telegram-Bot fuer Live-Preisalarme.
+  Liest `live_monitoring`-Regeln aus `stock_categories.xml`, ruft Preise ueber yfinance ab und sendet Trigger an den konfigurierten Zielchat.
 
 - `bot_monitoring.py`
   Gemeinsame Laufzeit- und Monitoring-Basis.
   Verantwortlich fuer:
   - Lock-Dateien
-  - Heartbeat-Datei
+  - Heartbeat-Dateien
   - JSONL-Event-Log
-  - Start/Stop/Restart von Haupt- und Support-Bot
+  - Start/Stop/Restart von Haupt-, Support- und Live-Monitoring-Bot
   - Prozessstatus-Ermittlung
 
 - `market_brief.py`
@@ -83,6 +88,14 @@ Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben und ein
         <ticker_usa>...</ticker_usa>
         <isin>...</isin>
         <wkn>...</wkn>
+        <trade_republic_aktie>ja|nein|unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>ja|nein|unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price></target_price>
+          <condition>above|below</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
         <land>...</land>
         <tag>...</tag>
         <description>...</description>
@@ -104,6 +117,14 @@ Verwendung der wichtigsten Felder:
 
 - `isin`, `wkn`, `name`
   Alternative Such- und Identifikationsfelder.
+
+- `trade_republic_aktie`, `trade_republic_derivate`
+  Pflichtfelder fuer die Trade-Republic-Handelbarkeit als Aktie bzw. Derivat.
+  Erlaubte Werte sind `ja`, `nein` und `unbekannt`.
+
+- `live_monitoring`
+  Optional aktivierbare Preisregel fuer `price_monitor.py`.
+  `condition` ist `above` oder `below`; `interval_min` steuert den Abrufabstand.
 
 - `land`
   Hilft bei automatischer Marktzuordnung vorhandener Primär-Ticker.
@@ -143,9 +164,10 @@ Verwendung der wichtigsten Felder:
 4. Der Support-Bot meldet:
    - Haupt-Bot gestoppt
    - Heartbeat veraltet
-   - Auto-Market-Brief deaktiviert
-   - neue Market-Brief-Fehler
+    - Auto-Market-Brief deaktiviert
+    - neue Market-Brief-Fehler
 5. Offene Fehler werden als Incidents gespeichert und koennen im Support-Bot auf geloest gesetzt werden.
+6. `live_monitoring_bot.py` schreibt einen eigenen Heartbeat und kann ueber den Support-Bot mit `/live_on`, `/live_off` und `/live_restart` gesteuert werden.
 
 ### 4. Listenpflege
 
@@ -158,6 +180,8 @@ Verwendung der wichtigsten Felder:
    - `ticker`
    - `isin`
    - `wkn`
+   - `trade_republic_aktie`
+   - `trade_republic_derivate`
 4. Danach folgt ein optionales Button-Menue fuer Zusatzfelder:
    - `ticker_usa`
    - `ticker_eu`
@@ -172,10 +196,13 @@ Verwendung der wichtigsten Felder:
 
 - `.telegram_bot.lock`
 - `.support_bot.lock`
+- `.live_monitoring_bot.lock`
 - `.telegram_bot.heartbeat.json`
+- `.live_monitoring_bot.heartbeat.json`
 - `telegram_bot_events.jsonl`
 - `telegram_bot_process.log`
 - `support_bot_process.log`
+- `live_monitoring_bot_process.log`
 - `support_bot_alert_state.json`
 
 Diese Dateien sind Laufzeit-/Monitoring-Artefakte und gehoeren nicht in ein oeffentliches Repo.

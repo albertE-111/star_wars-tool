@@ -1,13 +1,14 @@
 ﻿# Market Brief Telegram Bots
 
-Dieses Repository enthaelt den Haupt-Bot (`telegram_bot.py`) und den Support-Bot (`support_bot.py`) fuer Market-Brief-Automation und Monitoring.
+Dieses Repository enthaelt den Haupt-Bot (`telegram_bot.py`), den Support-Bot (`support_bot.py`) und den Live-Monitoring-Bot (`live_monitoring_bot.py`) fuer Market-Brief-Automation und Preisalarme.
 
 ## Projektstruktur
 
 - `telegram_bot.py`: Haupt-Bot (Market Brief, Auto-Jobs, Bedienung)
 - `support_bot.py`: Monitoring/Support (Heartbeat, Fehler-Handling)
+- `live_monitoring_bot.py`: eigener Telegram-Bot fuer Live-Preisalarme aus `stock_categories.xml`
 - `bot_monitoring.py`: Prozesssteuerung, Locking, Event-Logik
-- `market_brief.py`, `batch_market_brief.py`: Kernlogik fuer Brief-Erzeugung
+- `market_brief.py`, `batch_market_brief.py`, `price_monitor.py`: Kernlogik fuer Brief-Erzeugung und Preisregeln
 - `config/app_config.example.json`: Beispiel-Konfiguration ohne Secrets
 
 ## Sicherheit vor erstem Git-Push
@@ -49,6 +50,13 @@ Support-Bot:
 ```powershell
 .venv\Scripts\python.exe support_bot.py
 ```
+
+Live-Monitoring-Bot direkt:
+```powershell
+.venv\Scripts\python.exe live_monitoring_bot.py
+```
+
+Alternativ ueber den Support-Bot mit `/live_on`, `/live_off` und `/live_restart` steuern.
 
 ## Wichtiger Hinweis
 

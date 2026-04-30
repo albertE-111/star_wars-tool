@@ -23,8 +23,9 @@ Aus dem Code ersichtlich sind unter anderem folgende Commands:
 
 - `/supportbot`: Status und Steuerung des Support-Bots
 - `/listenpflege`: XML-Instrumentenliste pflegen
-- `/listenpflege` fuehrt beim Hinzufuegen zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`
+- `/listenpflege` fuehrt beim Hinzufuegen zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`, `trade_republic_aktie`, `trade_republic_derivate`
 - `/listenpflege` bietet danach per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description`
+- `python price_monitor.py`: lokale Live-Preisregeln aus `live_monitoring` pruefen
 - `/start`: Bot-Startnachricht und Uebersicht
 - `/cancel`: laufende Konversation abbrechen
 
@@ -40,6 +41,10 @@ Im Support-Bot sind unter anderem diese Commands registriert:
 - `/main_on`: Haupt-Bot starten
 - `/main_off`: Haupt-Bot stoppen
 - `/main_restart`: Haupt-Bot neu starten
+- `/live_status`: Live-Monitoring-Bot Status anzeigen
+- `/live_on`: Live-Monitoring-Bot starten
+- `/live_off`: Live-Monitoring-Bot stoppen
+- `/live_restart`: Live-Monitoring-Bot neu starten
 - `/autobrief_chat`: aktuell konfigurierte Auto-Market-Brief-Chat-ID und zentrale Auto-Brief-Einstellungen anzeigen
 - `/autobrief_chat_here`: den aktuellen Support-Bot-Chat als Ziel fuer den Auto-Market-Brief setzen
 - `/autobrief_chat_set <chat_id>`: Ziel-Chat-ID fuer den Auto-Market-Brief manuell auf einen Zahlenwert setzen
@@ -49,6 +54,28 @@ Im Support-Bot sind unter anderem diese Commands registriert:
 - `/start`: Startnachricht des Support-Bots
 
 Hinweis: Die durch `/autobrief_chat_here` oder `/autobrief_chat_set` gesetzte Ziel-Chat-ID wird dauerhaft in `config/app_config.json` unter `auto_market_brief.chat_id` gespeichert.
+
+## Telegram-Kommandos des Live-Monitoring-Bots
+
+Im separaten Live-Monitoring-Bot `live_monitoring_bot.py` sind die Commands nach Arbeitsablauf sortiert:
+
+Einrichtung:
+
+- `/start`: aktuellen Chat als Ziel fuer Preis-Trigger speichern
+- `/monitoring_setting`: interaktive Preisregel bearbeiten
+
+Uebersicht:
+
+- `/rules`: aktive Preisregeln anzeigen
+- `/status`: Ziel-Chat, Poll-Intervall und aktive Regeln anzeigen
+
+Bedienung:
+
+- `/cancel`: laufende Bearbeitung abbrechen
+- `/help`: Befehlsuebersicht anzeigen
+- `/ping`: Bot testen
+
+Der Dialog von `/monitoring_setting` fuehrt ueber Kategorie, Subkategorie und Aktie zur Regelbearbeitung. Dort koennen Monitoring ein- oder ausgeschaltet, Zielpreis, Bedingung und `interval_min` gesetzt sowie der aktuelle Kurs abgefragt werden.
 
 ## Wichtige lokale CLI-Skripte
 

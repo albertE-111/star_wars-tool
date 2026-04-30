@@ -512,8 +512,16 @@ def write_categories_xml(output_path: str) -> Path:
                     SubElement(item_element, "isin").text = item["isin"]
                 if "wkn" in item:
                     SubElement(item_element, "wkn").text = item["wkn"]
+                SubElement(item_element, "trade_republic_aktie").text = item.get("trade_republic_aktie", "unbekannt")
+                SubElement(item_element, "trade_republic_derivate").text = item.get("trade_republic_derivate", "unbekannt")
                 if "description" in item:
                     SubElement(item_element, "description").text = item["description"]
+                live_monitoring = item.get("live_monitoring", {})
+                live_monitoring_element = SubElement(item_element, "live_monitoring")
+                SubElement(live_monitoring_element, "enabled").text = str(live_monitoring.get("enabled", "false")).lower()
+                SubElement(live_monitoring_element, "target_price").text = str(live_monitoring.get("target_price", ""))
+                SubElement(live_monitoring_element, "condition").text = str(live_monitoring.get("condition", "above"))
+                SubElement(live_monitoring_element, "interval_min").text = str(live_monitoring.get("interval_min", "5"))
 
     path = Path(output_path)
     ElementTree(root).write(path, encoding="utf-8", xml_declaration=True)

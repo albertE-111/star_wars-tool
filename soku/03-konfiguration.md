@@ -16,6 +16,7 @@ Als Vorlage dient:
 {
   "bot_token": "",
   "support_bot_token": "",
+  "live_monitoring_bot_token": "",
   "gemini_api_key": "",
   "allowed_user_ids": "123456789",
   "allowed_chat_ids": "",
@@ -35,6 +36,10 @@ Als Vorlage dient:
     "send_detailed_result_message": false,
     "chat_id": 123456789,
     "last_run_at": ""
+  },
+  "live_monitoring_bot": {
+    "chat_id": 123456789,
+    "poll_seconds": 30
   }
 }
 ```
@@ -43,11 +48,15 @@ Als Vorlage dient:
 
 ### `bot_token`
 
-Telegram-Token des Haupt-Bots.
+Telegram-Token des Haupt-Bots `telegram_bot.py`.
 
 ### `support_bot_token`
 
-Telegram-Token des Support-Bots.
+Telegram-Token des Support-Bots `support_bot.py`.
+
+### `live_monitoring_bot_token`
+
+Telegram-Token des separaten Live-Monitoring-Bots `live_monitoring_bot.py`.
 
 ### `gemini_api_key`
 
@@ -127,12 +136,25 @@ Die ID kann entweder direkt in `config/app_config.json` gepflegt oder ueber den 
 
 Zeitstempel des letzten Auto-Laufs. Wird vom Bot selbst gepflegt.
 
+## Block `live_monitoring_bot`
+
+Diese Sektion steuert den separaten Telegram-Bot fuer Live-Preisalarme.
+
+### `chat_id`
+
+Ziel-Chat fuer Preis-Trigger. Der Wert kann durch `/start` im Live-Monitoring-Bot gesetzt werden.
+
+### `poll_seconds`
+
+Takt, in dem der Live-Monitoring-Bot die XML-Regeln prueft. Der eigentliche Kursabruf pro Wert wird zusaetzlich durch `live_monitoring.interval_min` im XML-Eintrag begrenzt.
+
 ## Pflichtfelder fuer einen funktionierenden Betrieb
 
 Praktisch unverzichtbar sind:
 
-- `bot_token`
-- `support_bot_token`
+- `bot_token` fuer den Haupt-Bot `telegram_bot.py`
+- `support_bot_token` fuer den Support-Bot `support_bot.py`
+- `live_monitoring_bot_token` fuer `live_monitoring_bot.py`, wenn Live-Monitoring genutzt wird
 - `gemini_api_key`, sofern Summaries genutzt werden sollen
 - `allowed_user_ids`
 - `support_bot.notify_chat_id`
@@ -144,3 +166,4 @@ Praktisch unverzichtbar sind:
 - Nach versehentlicher Offenlegung muessen Tokens und API-Keys rotiert werden.
 - Aenderungen an `auto_market_brief` koennen direkt das Laufzeitverhalten des Haupt-Bots aendern.
 - Laufzeitaenderungen ueber den Support-Bot, insbesondere an `auto_market_brief.chat_id`, werden in `config/app_config.json` persistiert und bleiben nach einem Neustart erhalten.
+- Der Live-Monitoring-Bot nutzt ein eigenes Telegram-Token, weil Telegram Polling pro Bot-Token nur von einem Prozess stabil betrieben werden sollte.

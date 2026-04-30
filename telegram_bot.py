@@ -102,6 +102,8 @@ STATE_LIST_DELETE_SUBCATEGORY = 47
 STATE_LIST_DELETE_ENTRY = 48
 STATE_LIST_DELETE_CONFIRM = 49
 STATE_SUPPORT_MENU = 50
+STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE = 51
+STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE = 52
 CALLBACK_PREFIX_CATEGORY = "mbc:"
 CALLBACK_PREFIX_SUBCATEGORY = "mbs:"
 CALLBACK_PREFIX_ENTRY = "mbe:"
@@ -126,7 +128,10 @@ CALLBACK_PREFIX_LIST_OPTIONAL = "lpao:"
 CALLBACK_PREFIX_SUPPORT = "sup:"
 AUTO_BRIEF_JOB_NAME = "auto_market_brief"
 
-REQUIRED_STOCK_FIELDS = ["category", "subcategory", "name", "ticker", "isin", "wkn"]
+BASE_REQUIRED_STOCK_FIELDS = ["category", "subcategory", "name", "ticker", "isin", "wkn"]
+TRADE_REPUBLIC_FIELD_NAMES = ["trade_republic_aktie", "trade_republic_derivate"]
+TRADE_REPUBLIC_ALLOWED_VALUES = {"ja", "nein", "unbekannt"}
+REQUIRED_STOCK_FIELDS = BASE_REQUIRED_STOCK_FIELDS + TRADE_REPUBLIC_FIELD_NAMES
 OPTIONAL_STOCK_FIELDS = ["ticker_usa", "ticker_eu", "ticker_apac", "land", "tag", "description"]
 TICKER_FIELD_NAMES = ["ticker", "ticker_usa", "ticker_eu", "ticker_apac"]
 IDENTIFIER_FIELD_NAMES = ["isin", "wkn"]
@@ -140,6 +145,8 @@ STOCK_FIELD_LABELS = {
     "ticker_apac": "Ticker APAC",
     "isin": "ISIN",
     "wkn": "WKN",
+    "trade_republic_aktie": "Trade Republic Aktie",
+    "trade_republic_derivate": "Trade Republic Derivate",
     "land": "Land",
     "tag": "Tag",
     "description": "Beschreibung",
@@ -376,6 +383,8 @@ def collect_stock_entries(xml_path: str = "config/stock_categories/stock_categor
                     "ticker": (index.findtext("ticker") or "").strip(),
                     "isin": (index.findtext("isin") or "").strip(),
                     "wkn": (index.findtext("wkn") or "").strip(),
+                    "trade_republic_aktie": (index.findtext("trade_republic_aktie") or "").strip(),
+                    "trade_republic_derivate": (index.findtext("trade_republic_derivate") or "").strip(),
                     "ticker_usa": (index.findtext("ticker_usa") or "").strip(),
                     "ticker_eu": (index.findtext("ticker_eu") or "").strip(),
                     "ticker_apac": (index.findtext("ticker_apac") or "").strip(),
@@ -393,6 +402,24 @@ def ensure_text_child(node: ElementTree.Element, tag: str) -> ElementTree.Elemen
     if child is None:
         child = ElementTree.SubElement(node, tag)
     return child
+
+
+def ensure_default_live_monitoring_node(node: ElementTree.Element) -> ElementTree.Element:
+    live_monitoring = node.find("live_monitoring")
+    if live_monitoring is None:
+        live_monitoring = ElementTree.SubElement(node, "live_monitoring")
+
+    defaults = {
+        "enabled": "false",
+        "target_price": "",
+        "condition": "above",
+        "interval_min": "5",
+    }
+    for field, default_value in defaults.items():
+        child = ensure_text_child(live_monitoring, field)
+        if child.text is None or (field != "target_price" and not child.text.strip()):
+            child.text = default_value
+    return live_monitoring
 
 
 def find_category_node(root: ElementTree.Element, name: str) -> ElementTree.Element | None:
@@ -461,19 +488,53 @@ def normalize_stock_value(value: str, field_name: str = "") -> str:
         return normalized.upper()
     if field_name in IDENTIFIER_FIELD_NAMES:
         return normalized.upper().replace(" ", "")
+    if field_name in TRADE_REPUBLIC_FIELD_NAMES:
+        return normalize_trade_republic_value(normalized)
     return normalized
+
+
+def normalize_trade_republic_value(value: str) -> str:
+    normalized = value.strip().casefold()
+    mapping = {
+        "j": "ja",
+        "ja": "ja",
+        "yes": "ja",
+        "y": "ja",
+        "true": "ja",
+        "1": "ja",
+        "n": "nein",
+        "nein": "nein",
+        "no": "nein",
+        "false": "nein",
+        "0": "nein",
+        "?": "unbekannt",
+        "unklar": "unbekannt",
+        "unbekannt": "unbekannt",
+        "unknown": "unbekannt",
+    }
+    return mapping.get(normalized, normalized)
 
 
 def validate_stock_entry_payload(
     payload: dict[str, str],
     existing_entries: list[dict[str, str]],
     current_query: str = "",
+    required_fields: list[str] | None = None,
 ) -> None:
     normalized_payload = {key: normalize_stock_value(str(value), key) for key, value in payload.items()}
+    required_fields = required_fields or REQUIRED_STOCK_FIELDS
 
-    for field in REQUIRED_STOCK_FIELDS:
+    for field in required_fields:
         if not normalized_payload.get(field, ""):
             raise RuntimeError(f"Feld fehlt oder ist leer: {field}")
+
+    for field in TRADE_REPUBLIC_FIELD_NAMES:
+        candidate = normalized_payload.get(field, "")
+        if candidate and candidate not in TRADE_REPUBLIC_ALLOWED_VALUES:
+            raise RuntimeError(
+                f"Ungueltiger Wert fuer {STOCK_FIELD_LABELS[field]}: {candidate}. "
+                "Erlaubt sind: ja, nein, unbekannt."
+            )
 
     for entry in existing_entries:
         entry_query = entry.get("query", "")
@@ -510,6 +571,9 @@ def add_stock_entry(payload: dict[str, str], xml_path: str = "config/stock_categ
     ensure_text_child(index, "ticker").text = clean_payload["ticker"]
     ensure_text_child(index, "isin").text = clean_payload["isin"]
     ensure_text_child(index, "wkn").text = clean_payload["wkn"]
+    ensure_text_child(index, "trade_republic_aktie").text = clean_payload["trade_republic_aktie"]
+    ensure_text_child(index, "trade_republic_derivate").text = clean_payload["trade_republic_derivate"]
+    ensure_default_live_monitoring_node(index)
     for field in OPTIONAL_STOCK_FIELDS:
         value = clean_payload.get(field, "")
         if value:
@@ -537,6 +601,8 @@ def update_stock_entry(
         "ticker": (entry_node.findtext("ticker") or "").strip(),
         "isin": (entry_node.findtext("isin") or "").strip(),
         "wkn": (entry_node.findtext("wkn") or "").strip(),
+        "trade_republic_aktie": (entry_node.findtext("trade_republic_aktie") or "").strip(),
+        "trade_republic_derivate": (entry_node.findtext("trade_republic_derivate") or "").strip(),
         "ticker_usa": (entry_node.findtext("ticker_usa") or "").strip(),
         "ticker_eu": (entry_node.findtext("ticker_eu") or "").strip(),
         "ticker_apac": (entry_node.findtext("ticker_apac") or "").strip(),
@@ -561,6 +627,9 @@ def update_stock_entry(
     ensure_text_child(entry_node, "ticker").text = merged["ticker"]
     ensure_text_child(entry_node, "isin").text = merged["isin"]
     ensure_text_child(entry_node, "wkn").text = merged["wkn"]
+    ensure_text_child(entry_node, "trade_republic_aktie").text = merged["trade_republic_aktie"]
+    ensure_text_child(entry_node, "trade_republic_derivate").text = merged["trade_republic_derivate"]
+    ensure_default_live_monitoring_node(entry_node)
     for field in OPTIONAL_STOCK_FIELDS:
         value = merged.get(field, "")
         child = entry_node.find(field)
@@ -1593,6 +1662,8 @@ def format_stock_entry(entry: dict[str, str]) -> str:
         f"Ticker: {entry.get('ticker', '-')}",
         f"ISIN: {entry.get('isin', '-')}",
         f"WKN: {entry.get('wkn', '-')}",
+        f"Trade Republic Aktie: {entry.get('trade_republic_aktie') or '-'}",
+        f"Trade Republic Derivate: {entry.get('trade_republic_derivate') or '-'}",
     ]
     for field in OPTIONAL_STOCK_FIELDS:
         value = str(entry.get(field, "")).strip()
@@ -1647,6 +1718,8 @@ def build_stock_field_choice_keyboard() -> InlineKeyboardMarkup:
         ("Ticker APAC", f"{CALLBACK_PREFIX_LIST_FIELD}ticker_apac"),
         ("ISIN", f"{CALLBACK_PREFIX_LIST_FIELD}isin"),
         ("WKN", f"{CALLBACK_PREFIX_LIST_FIELD}wkn"),
+        ("TR Aktie", f"{CALLBACK_PREFIX_LIST_FIELD}trade_republic_aktie"),
+        ("TR Derivate", f"{CALLBACK_PREFIX_LIST_FIELD}trade_republic_derivate"),
         ("Land", f"{CALLBACK_PREFIX_LIST_FIELD}land"),
         ("Tag", f"{CALLBACK_PREFIX_LIST_FIELD}tag"),
         ("Beschreibung", f"{CALLBACK_PREFIX_LIST_FIELD}description"),
@@ -1683,6 +1756,22 @@ def stock_optional_field_prompt(field_name: str) -> str:
         "description": "Kurzbeschreibung eingeben:",
     }
     return prompts.get(field_name, f"Wert fuer {field_name} eingeben:")
+
+
+def build_trade_republic_value_keyboard() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        [["Ja", "Nein", "Unbekannt"], ["Zurueck", "Abbrechen"]],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+
+
+def trade_republic_field_prompt(field_name: str) -> str:
+    prompts = {
+        "trade_republic_aktie": "Ist dieser Wert bei Trade Republic als Aktie handelbar?",
+        "trade_republic_derivate": "Sind bei Trade Republic Derivate auf diesen Wert handelbar?",
+    }
+    return prompts.get(field_name, "Trade-Republic-Status waehlen:")
 
 
 def build_time_choice_keyboard(prefix: str, mode: str = "from") -> InlineKeyboardMarkup:
@@ -2465,7 +2554,7 @@ async def show_listenpflege_action_menu(message) -> None:
 async def show_list_add_optional_menu(message, context: ContextTypes.DEFAULT_TYPE, *, reply_markup=ReplyKeyboardRemove()) -> None:
     payload = context.user_data.get("list_add_payload", {})
     await message.reply_text(
-        "Optionale Zusatzfelder auswaehlen.\n"
+        "Pflichtfelder sind gesetzt. Optionale Zusatzfelder auswaehlen.\n"
         "Empfohlen fuer saubere Market-Brief-Laeufe: Ticker USA, Ticker EU, Ticker APAC.\n\n"
         + format_stock_entry(payload),
         reply_markup=reply_markup,
@@ -2775,6 +2864,81 @@ async def listenpflege_add_wkn(update: Update, context: ContextTypes.DEFAULT_TYP
     payload = context.user_data.setdefault("list_add_payload", {})
     payload["wkn"] = normalize_stock_value(value, "wkn")
     try:
+        validate_stock_entry_payload(
+            payload,
+            await run_blocking(collect_stock_entries),
+            required_fields=BASE_REQUIRED_STOCK_FIELDS,
+        )
+    except Exception as exc:
+        await message.reply_text(f"Validierung fehlgeschlagen: {exc}\nBitte /listenpflege neu starten.")
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+
+    await message.reply_text(
+        trade_republic_field_prompt("trade_republic_aktie"),
+        reply_markup=build_trade_republic_value_keyboard(),
+    )
+    return STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE
+
+
+async def listenpflege_add_trade_republic_aktie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    message = update.effective_message
+    if message is None:
+        return STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE
+    nav = listenpflege_text_nav_choice(message)
+    if nav == "cancel":
+        await message.reply_text("Listenpflege abgebrochen.", reply_markup=ReplyKeyboardRemove())
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if nav == "back":
+        context.user_data.setdefault("list_add_payload", {}).pop("wkn", None)
+        await message.reply_text("WKN eingeben:", reply_markup=build_text_navigation_keyboard())
+        return STATE_LIST_ADD_WKN
+
+    value = normalize_trade_republic_value(message.text or "")
+    if value not in TRADE_REPUBLIC_ALLOWED_VALUES:
+        await message.reply_text(
+            "Bitte Ja, Nein oder Unbekannt waehlen.",
+            reply_markup=build_trade_republic_value_keyboard(),
+        )
+        return STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE
+
+    context.user_data.setdefault("list_add_payload", {})["trade_republic_aktie"] = value
+    await message.reply_text(
+        trade_republic_field_prompt("trade_republic_derivate"),
+        reply_markup=build_trade_republic_value_keyboard(),
+    )
+    return STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE
+
+
+async def listenpflege_add_trade_republic_derivate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    message = update.effective_message
+    if message is None:
+        return STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE
+    nav = listenpflege_text_nav_choice(message)
+    if nav == "cancel":
+        await message.reply_text("Listenpflege abgebrochen.", reply_markup=ReplyKeyboardRemove())
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if nav == "back":
+        context.user_data.setdefault("list_add_payload", {}).pop("trade_republic_aktie", None)
+        await message.reply_text(
+            trade_republic_field_prompt("trade_republic_aktie"),
+            reply_markup=build_trade_republic_value_keyboard(),
+        )
+        return STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE
+
+    value = normalize_trade_republic_value(message.text or "")
+    if value not in TRADE_REPUBLIC_ALLOWED_VALUES:
+        await message.reply_text(
+            "Bitte Ja, Nein oder Unbekannt waehlen.",
+            reply_markup=build_trade_republic_value_keyboard(),
+        )
+        return STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE
+
+    payload = context.user_data.setdefault("list_add_payload", {})
+    payload["trade_republic_derivate"] = value
+    try:
         validate_stock_entry_payload(payload, await run_blocking(collect_stock_entries))
     except Exception as exc:
         await message.reply_text(f"Validierung fehlgeschlagen: {exc}\nBitte /listenpflege neu starten.")
@@ -2797,11 +2961,14 @@ async def listenpflege_add_optional_menu(update: Update, context: ContextTypes.D
         return ConversationHandler.END
     if action == "back":
         payload = context.user_data.setdefault("list_add_payload", {})
-        payload.pop("wkn", None)
-        await query.edit_message_text("WKN eingeben:")
+        payload.pop("trade_republic_derivate", None)
+        await query.edit_message_text(trade_republic_field_prompt("trade_republic_derivate"))
         if query.message is not None:
-            await query.message.reply_text("WKN eingeben:", reply_markup=build_text_navigation_keyboard())
-        return STATE_LIST_ADD_WKN
+            await query.message.reply_text(
+                trade_republic_field_prompt("trade_republic_derivate"),
+                reply_markup=build_trade_republic_value_keyboard(),
+            )
+        return STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE
     if action == "save":
         payload = context.user_data.get("list_add_payload", {})
         try:
@@ -3049,11 +3216,20 @@ async def listenpflege_edit_field(update: Update, context: ContextTypes.DEFAULT_
         cleanup_listenpflege_context(context)
         return ConversationHandler.END
     context.user_data["list_edit_field"] = field_name
-    await query.edit_message_text(f"Neuen Wert fuer {STOCK_FIELD_LABELS.get(field_name, field_name)} eingeben:")
+    prompt = (
+        trade_republic_field_prompt(field_name)
+        if field_name in TRADE_REPUBLIC_FIELD_NAMES
+        else f"Neuen Wert fuer {STOCK_FIELD_LABELS.get(field_name, field_name)} eingeben:"
+    )
+    await query.edit_message_text(prompt)
     if query.message is not None:
         await query.message.reply_text(
-            f"Neuen Wert fuer {STOCK_FIELD_LABELS.get(field_name, field_name)} eingeben:",
-            reply_markup=build_text_navigation_keyboard(),
+            prompt,
+            reply_markup=(
+                build_trade_republic_value_keyboard()
+                if field_name in TRADE_REPUBLIC_FIELD_NAMES
+                else build_text_navigation_keyboard()
+            ),
         )
     return STATE_LIST_EDIT_VALUE
 
@@ -3095,7 +3271,14 @@ async def listenpflege_edit_value(update: Update, context: ContextTypes.DEFAULT_
     try:
         validate_stock_entry_payload(updated_preview, await run_blocking(collect_stock_entries), current_query=entry["query"])
     except Exception as exc:
-        await message.reply_text(f"Validierung fehlgeschlagen: {exc}\nBitte neuen Wert eingeben.", reply_markup=build_text_navigation_keyboard())
+        await message.reply_text(
+            f"Validierung fehlgeschlagen: {exc}\nBitte neuen Wert eingeben.",
+            reply_markup=(
+                build_trade_republic_value_keyboard()
+                if field_name in TRADE_REPUBLIC_FIELD_NAMES
+                else build_text_navigation_keyboard()
+            ),
+        )
         return STATE_LIST_EDIT_VALUE
 
     context.user_data["list_edit_entry"] = updated_preview
@@ -3302,6 +3485,12 @@ def build_application() -> Application:
                 ],
                 STATE_LIST_ADD_WKN: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_wkn)
+                ],
+                STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_trade_republic_aktie)
+                ],
+                STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_trade_republic_derivate)
                 ],
                 STATE_LIST_ADD_OPTIONAL_MENU: [
                     CallbackQueryHandler(listenpflege_add_optional_menu, pattern=f"^{CALLBACK_PREFIX_LIST_OPTIONAL}")

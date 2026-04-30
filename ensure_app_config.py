@@ -10,6 +10,7 @@ CONFIG_PATH = Path("config/app_config.json")
 DEFAULT_CONFIG = {
     "bot_token": "",
     "support_bot_token": "",
+    "live_monitoring_bot_token": "",
     "gemini_api_key": "",
     "allowed_user_ids": "",
     "allowed_chat_ids": "",
@@ -29,6 +30,10 @@ DEFAULT_CONFIG = {
         "send_detailed_result_message": False,
         "chat_id": 0,
         "last_run_at": "",
+    },
+    "live_monitoring_bot": {
+        "chat_id": 0,
+        "poll_seconds": 30,
     },
 }
 
@@ -84,7 +89,26 @@ def merge_defaults(config: dict) -> dict:
         "last_run_at": auto_market_brief.get("last_run_at", DEFAULT_CONFIG["auto_market_brief"]["last_run_at"]),
     }
 
-    for key in ("bot_token", "support_bot_token", "gemini_api_key", "allowed_user_ids", "allowed_chat_ids", "gemini_model"):
+    live_monitoring_bot = merged.get("live_monitoring_bot")
+    if not isinstance(live_monitoring_bot, dict):
+        live_monitoring_bot = {}
+    merged["live_monitoring_bot"] = {
+        "chat_id": live_monitoring_bot.get("chat_id", DEFAULT_CONFIG["live_monitoring_bot"]["chat_id"]),
+        "poll_seconds": live_monitoring_bot.get(
+            "poll_seconds",
+            DEFAULT_CONFIG["live_monitoring_bot"]["poll_seconds"],
+        ),
+    }
+
+    for key in (
+        "bot_token",
+        "support_bot_token",
+        "live_monitoring_bot_token",
+        "gemini_api_key",
+        "allowed_user_ids",
+        "allowed_chat_ids",
+        "gemini_model",
+    ):
         merged[key] = merged.get(key, DEFAULT_CONFIG[key])
     return merged
 
@@ -158,6 +182,7 @@ def main() -> int:
     required_checks = [
         ("bot_token", config["bot_token"]),
         ("support_bot_token", config["support_bot_token"]),
+        ("live_monitoring_bot_token", config["live_monitoring_bot_token"]),
         ("gemini_api_key", config["gemini_api_key"]),
         ("allowed_user_ids", config["allowed_user_ids"]),
         ("support_bot.notify_chat_id", config["support_bot"]["notify_chat_id"]),
@@ -172,8 +197,18 @@ def main() -> int:
     print("Es fehlen Konfigurationswerte. Die fehlenden oder leeren Felder werden jetzt abgefragt.")
     print()
 
-    config["bot_token"] = prompt_required("Bot-Token", config["bot_token"])
-    config["support_bot_token"] = prompt_required("Support-Bot-Token", config["support_bot_token"])
+    config["bot_token"] = prompt_required(
+        "Haupt-Bot-Token (telegram_bot.py)",
+        config["bot_token"],
+    )
+    config["support_bot_token"] = prompt_required(
+        "Support-Bot-Token (support_bot.py)",
+        config["support_bot_token"],
+    )
+    config["live_monitoring_bot_token"] = prompt_required(
+        "Live-Monitoring-Bot-Token (live_monitoring_bot.py)",
+        config["live_monitoring_bot_token"],
+    )
     config["gemini_api_key"] = prompt_required("Gemini-API-Key", config["gemini_api_key"])
     config["allowed_user_ids"] = prompt_required("Allowed User IDs", config["allowed_user_ids"])
     config["allowed_chat_ids"] = prompt_optional("Allowed Chat IDs", config["allowed_chat_ids"], "")
@@ -236,6 +271,18 @@ def main() -> int:
         "Auto Market Brief Chat ID",
         auto_market_brief["chat_id"],
         0,
+    )
+
+    live_monitoring_bot = config["live_monitoring_bot"]
+    live_monitoring_bot["chat_id"] = prompt_int(
+        "Live Monitoring Chat ID",
+        live_monitoring_bot["chat_id"],
+        0,
+    )
+    live_monitoring_bot["poll_seconds"] = prompt_int(
+        "Live Monitoring Poll Sekunden",
+        live_monitoring_bot["poll_seconds"],
+        30,
     )
 
     save_config(config)

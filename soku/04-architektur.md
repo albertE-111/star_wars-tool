@@ -99,7 +99,7 @@ Hilfsskript fuer DAX-bezogene Stammdaten beziehungsweise XML-Erzeugung.
 
 - `config/stock_categories/stock_categories.xml`
 - Die Datei wird auch interaktiv ueber `/listenpflege` gepflegt.
-- Der Add-Flow fuehrt zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`.
+- Der Add-Flow fuehrt zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`, `trade_republic_aktie`, `trade_republic_derivate`.
 - Danach koennen per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description` gesetzt werden.
 - `config/app_config.example.json`
 
@@ -163,6 +163,14 @@ Die Instrumentenliste ist hierarchisch aufgebaut:
         <ticker_usa>...</ticker_usa>
         <isin>...</isin>
         <wkn>...</wkn>
+        <trade_republic_aktie>ja|nein|unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>ja|nein|unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price></target_price>
+          <condition>above|below</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
         <land>...</land>
         <tag>...</tag>
         <description>...</description>
@@ -172,5 +180,7 @@ Die Instrumentenliste ist hierarchisch aufgebaut:
 </stockCategories>
 ```
 
+`trade_republic_aktie` und `trade_republic_derivate` sind Pflichtfelder mit den Werten `ja`, `nein` oder `unbekannt`.
+`live_monitoring` steuert optionale Preisregeln fuer `price_monitor.py`; `condition` ist `above` oder `below`.
 Eintraege koennen je nach Instrument zusaetzliche Felder wie `ticker_apac`, `ticker_eu`, `ticker_europe` oder `ticker_usa` enthalten.
 Fuer einen sauberen marktuebergreifenden `market_brief` sind insbesondere `ticker_usa`, `ticker_eu` und `ticker_apac` sinnvoll, weil sie fuer Global-Lead-Logik, Zeit-Bruecke und Cross-Market-Vergleiche genutzt werden.

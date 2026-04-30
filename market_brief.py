@@ -90,9 +90,31 @@ def normalize(value: str | None) -> str:
     return (value or "").strip().casefold()
 
 
-def load_entries(xml_path: str) -> list[dict[str, str]]:
+def default_live_monitoring_config() -> dict[str, str]:
+    return {
+        "enabled": "false",
+        "target_price": "",
+        "condition": "above",
+        "interval_min": "5",
+    }
+
+
+def parse_live_monitoring_config(item: ElementTree.Element) -> dict[str, str]:
+    config = default_live_monitoring_config()
+    node = item.find("live_monitoring")
+    if node is None:
+        return config
+
+    for field in config:
+        value = (node.findtext(field) or "").strip()
+        if value or field == "target_price":
+            config[field] = value
+    return config
+
+
+def load_entries(xml_path: str) -> list[dict[str, Any]]:
     root = ElementTree.parse(xml_path).getroot()
-    entries: list[dict[str, str]] = []
+    entries: list[dict[str, Any]] = []
 
     for category in root.findall("category"):
         category_name = category.attrib.get("name", "")
@@ -104,7 +126,10 @@ def load_entries(xml_path: str) -> list[dict[str, str]]:
                     "subcategory": subcategory_name,
                 }
                 for child in item:
+                    if child.tag == "live_monitoring":
+                        continue
                     entry[child.tag] = (child.text or "").strip()
+                entry["live_monitoring"] = parse_live_monitoring_config(item)
                 entries.append(entry)
 
     return entries

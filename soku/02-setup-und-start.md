@@ -93,6 +93,16 @@ Der Support-Bot benoetigt mindestens:
 - `support_bot_token`
 - `support_bot.notify_chat_id`
 
+`start_support_bot.bat` ruft vor dem Start `ensure_app_config.py` auf. Wenn dort
+`[vorhanden, Enter zum Behalten]` steht, ist bereits ein Wert gespeichert und
+Enter behaelt ihn unveraendert.
+
+Die Token-Abfragen bedeuten:
+
+- `Haupt-Bot-Token (telegram_bot.py)`: normaler Bot fuer Market Briefs und Listenpflege
+- `Support-Bot-Token (support_bot.py)`: Bot fuer Status, Start, Stop und Restart
+- `Live-Monitoring-Bot-Token (live_monitoring_bot.py)`: separater Bot fuer Preisalarme
+
 ## Typischer Betriebsablauf
 
 1. `setup_local_files.bat` ausfuehren
@@ -101,6 +111,7 @@ Der Support-Bot benoetigt mindestens:
 4. Support-Bot starten
 5. im Haupt-Bot `\autobrief` oder `\autobrief_start` pruefen
 6. im Support-Bot `\status` pruefen
+7. bei Bedarf im Support-Bot `\live_on` starten und mit `\live_status` pruefen
 
 ## Wichtige erzeugte Laufzeitdateien
 
@@ -108,10 +119,13 @@ Beim Setup oder waehrend des Betriebs entstehen unter anderem:
 
 - `telegram_bot_process.log`
 - `support_bot_process.log`
+- `live_monitoring_bot_process.log`
 - `telegram_bot_events.jsonl`
 - `support_bot_alert_state.json`
 - `.telegram_bot.lock`
 - `.support_bot.lock`
+- `.live_monitoring_bot.lock`
 - `.telegram_bot.heartbeat.json`
+- `.live_monitoring_bot.heartbeat.json`
 
 Diese Dateien sind Teil des laufenden Betriebs und keine eigentlichen Quelldateien.

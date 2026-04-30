@@ -6,9 +6,11 @@
 
 - `telegram_bot.py`: Haupt-Bot
 - `support_bot.py`: Support- und Monitoring-Bot
+- `live_monitoring_bot.py`: separater Telegram-Bot fuer Live-Preisalarme
 - `bot_monitoring.py`: gemeinsame Prozess- und Eventlogik
 - `market_brief.py`: Einzel-Market-Brief
 - `batch_market_brief.py`: Batch-Ausfuehrung
+- `price_monitor.py`: lokale Preisregel- und yfinance-Logik fuer Live-Monitoring
 
 ### Hilfsskripte
 
@@ -56,10 +58,13 @@ Standardziel fuer Batch-Ausgaben und weitere Analyseergebnisse. `batch_market_br
 
 - `.telegram_bot.lock`: Lock des Haupt-Bots
 - `.support_bot.lock`: Lock des Support-Bots
+- `.live_monitoring_bot.lock`: Lock des Live-Monitoring-Bots
 - `.telegram_bot.heartbeat.json`: Heartbeat des Haupt-Bots
+- `.live_monitoring_bot.heartbeat.json`: Heartbeat des Live-Monitoring-Bots
 - `telegram_bot_events.jsonl`: Event-Log als JSON Lines
 - `telegram_bot_process.log`: Prozess- oder Konsolenlog des Haupt-Bots
 - `support_bot_process.log`: Prozess- oder Konsolenlog des Support-Bots
+- `live_monitoring_bot_process.log`: Prozess- oder Konsolenlog des Live-Monitoring-Bots
 - `support_bot_alert_state.json`: offener Incident-Status des Support-Bots
 - `gemini_article_summary_cache.sqlite`: lokaler Cache fuer Artikel-Zusammenfassungen
 

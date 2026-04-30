@@ -14,11 +14,15 @@ from bot_monitoring import (
     SUPPORT_BOT_LOCK_PATH,
     SingleInstanceLock,
     append_event,
+    get_live_monitoring_bot_status,
     get_main_bot_status,
     read_events_after,
     read_recent_events,
+    restart_live_monitoring_bot_process,
     restart_main_bot_process,
+    start_live_monitoring_bot_process,
     start_main_bot_process,
+    stop_live_monitoring_bot_process,
     stop_main_bot_process,
 )
 from telegram import BotCommand, Update
@@ -338,10 +342,15 @@ def upsert_incident(runtime: SupportRuntime, event: dict, classification: dict) 
 
 def format_status(runtime: SupportRuntime) -> str:
     status = get_main_bot_status()
+    live_status = get_live_monitoring_bot_status()
     heartbeat = status.get("heartbeat") or {}
     heartbeat_age = status.get("heartbeat_age_seconds")
     heartbeat_details = heartbeat.get("details") if isinstance(heartbeat.get("details"), dict) else {}
     state = "laeuft" if status["running"] else "gestoppt"
+    live_heartbeat = live_status.get("heartbeat") or {}
+    live_heartbeat_age = live_status.get("heartbeat_age_seconds")
+    live_details = live_heartbeat.get("details") if isinstance(live_heartbeat.get("details"), dict) else {}
+    live_state = "laeuft" if live_status["running"] else "gestoppt"
     auto_brief_enabled = heartbeat_details.get("auto_brief_enabled")
     if auto_brief_enabled is True:
         auto_brief_state = "aktiv"
@@ -360,11 +369,41 @@ def format_status(runtime: SupportRuntime) -> str:
         f"Auto Market Brief: {auto_brief_state}",
         f"Auto Market Brief letzter Lauf: {heartbeat_details.get('auto_brief_last_run_at', '-') or '-'}",
         f"Auto Market Brief Ziel-Chat-ID: {get_auto_brief_chat_id(runtime) or '-'}",
+        "",
+        f"Live-Monitoring-Bot Status: {live_state}",
+        f"Live-Monitoring PID: {live_status.get('pid') or '-'}",
+        f"Live-Monitoring Lock-Datei: {'ja' if live_status.get('lock_exists') else 'nein'}",
+        f"Live-Monitoring Heartbeat: {live_heartbeat.get('status', '-')}",
+        f"Live-Monitoring Heartbeat Alter: {live_heartbeat_age:.1f}s" if live_heartbeat_age is not None else "Live-Monitoring Heartbeat Alter: -",
+        f"Live-Monitoring aktive Regeln: {live_details.get('active_rules', '-')}",
+        f"Live-Monitoring Ziel-Chat-ID: {live_details.get('target_chat_id', '-') or '-'}",
+        "",
         f"Event-Datei: {BOT_EVENT_LOG_PATH.name}",
         f"Benachrichtigungs-Chat: {runtime.notify_chat_id or '-'}",
         f"Offene Market-Brief-Fehler: {len(get_open_incidents(runtime))}",
     ]
     return "\n".join(lines)
+
+
+def format_live_monitoring_status() -> str:
+    status = get_live_monitoring_bot_status()
+    heartbeat = status.get("heartbeat") or {}
+    heartbeat_age = status.get("heartbeat_age_seconds")
+    details = heartbeat.get("details") if isinstance(heartbeat.get("details"), dict) else {}
+    return "\n".join(
+        [
+            f"Live-Monitoring-Bot Status: {'laeuft' if status.get('running') else 'gestoppt'}",
+            f"PID: {status.get('pid') or '-'}",
+            f"Lock-Datei: {'ja' if status.get('lock_exists') else 'nein'}",
+            f"Heartbeat Status: {heartbeat.get('status', '-')}",
+            f"Heartbeat Zeit: {heartbeat.get('updated_at', '-')}",
+            f"Heartbeat Alter: {heartbeat_age:.1f}s" if heartbeat_age is not None else "Heartbeat Alter: -",
+            f"Aktive Regeln: {details.get('active_rules', '-')}",
+            f"Ziel-Chat-ID: {details.get('target_chat_id', '-') or '-'}",
+            f"Poll-Intervall: {details.get('poll_seconds', '-')}",
+            f"Letzte Trigger: {details.get('last_trigger_count', '-')}",
+        ]
+    )
 
 
 def format_event(event: dict) -> str:
@@ -449,6 +488,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "/main_on - Haupt-Bot starten\n"
             "/main_off - Haupt-Bot stoppen\n"
             "/main_restart - Haupt-Bot neu starten\n"
+            "/live_status - Live-Monitoring-Bot Status\n"
+            "/live_on - Live-Monitoring-Bot starten\n"
+            "/live_off - Live-Monitoring-Bot stoppen\n"
+            "/live_restart - Live-Monitoring-Bot neu starten\n"
             "/errors - letzte Fehlermeldungen anzeigen\n"
             "/open_errors - offene Market-Brief-Fehler\n"
             "/resolve_error <id> - Fehler als geloest markieren\n"
@@ -572,6 +615,48 @@ async def main_restart_command(update: Update, context: ContextTypes.DEFAULT_TYP
     if not await require_access(update, runtime):
         return
     result = restart_main_bot_process(python_executable=sys.executable)
+    append_event("support_bot", "INFO", result["message"])
+    message = update.effective_message
+    if message is not None:
+        await message.reply_text(result["message"])
+
+
+async def live_status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    message = update.effective_message
+    if message is not None:
+        await message.reply_text(format_live_monitoring_status())
+
+
+async def live_on_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    result = start_live_monitoring_bot_process(python_executable=sys.executable)
+    append_event("support_bot", "INFO", result["message"])
+    message = update.effective_message
+    if message is not None:
+        await message.reply_text(result["message"])
+
+
+async def live_off_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    result = stop_live_monitoring_bot_process()
+    append_event("support_bot", "INFO", result["message"])
+    message = update.effective_message
+    if message is not None:
+        await message.reply_text(result["message"])
+
+
+async def live_restart_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    result = restart_live_monitoring_bot_process(python_executable=sys.executable)
     append_event("support_bot", "INFO", result["message"])
     message = update.effective_message
     if message is not None:
@@ -760,6 +845,10 @@ async def post_init(application: Application) -> None:
             BotCommand("main_on", "Haupt-Bot starten"),
             BotCommand("main_off", "Haupt-Bot stoppen"),
             BotCommand("main_restart", "Haupt-Bot neu starten"),
+            BotCommand("live_status", "Live-Monitoring-Bot Status"),
+            BotCommand("live_on", "Live-Monitoring-Bot starten"),
+            BotCommand("live_off", "Live-Monitoring-Bot stoppen"),
+            BotCommand("live_restart", "Live-Monitoring-Bot neu starten"),
             BotCommand("errors", "Letzte Fehlermeldungen"),
             BotCommand("open_errors", "Offene Market-Brief-Fehler"),
             BotCommand("resolve_error", "Market-Brief-Fehler als geloest markieren"),
@@ -789,6 +878,10 @@ def build_application() -> Application:
     application.add_handler(CommandHandler("main_on", main_on_command))
     application.add_handler(CommandHandler("main_off", main_off_command))
     application.add_handler(CommandHandler("main_restart", main_restart_command))
+    application.add_handler(CommandHandler("live_status", live_status_command))
+    application.add_handler(CommandHandler("live_on", live_on_command))
+    application.add_handler(CommandHandler("live_off", live_off_command))
+    application.add_handler(CommandHandler("live_restart", live_restart_command))
     application.add_error_handler(support_error_handler)
     if application.job_queue is not None:
         application.job_queue.run_repeating(

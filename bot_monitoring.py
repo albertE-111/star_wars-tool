@@ -20,6 +20,10 @@ MAIN_BOT_PROCESS_LOG_PATH = Path("telegram_bot_process.log")
 SUPPORT_BOT_SCRIPT = Path("support_bot.py")
 SUPPORT_BOT_LOCK_PATH = Path(".support_bot.lock")
 SUPPORT_BOT_PROCESS_LOG_PATH = Path("support_bot_process.log")
+LIVE_MONITORING_BOT_SCRIPT = Path("live_monitoring_bot.py")
+LIVE_MONITORING_BOT_LOCK_PATH = Path(".live_monitoring_bot.lock")
+LIVE_MONITORING_BOT_HEARTBEAT_PATH = Path(".live_monitoring_bot.heartbeat.json")
+LIVE_MONITORING_BOT_PROCESS_LOG_PATH = Path("live_monitoring_bot_process.log")
 HEARTBEAT_INTERVAL_SECONDS = 30
 
 
@@ -52,6 +56,23 @@ def write_heartbeat(status: str, details: dict[str, Any] | None = None) -> None:
 
 def read_heartbeat() -> dict[str, Any] | None:
     payload = load_json_file(MAIN_BOT_HEARTBEAT_PATH, None)
+    if not isinstance(payload, dict):
+        return None
+    return payload
+
+
+def write_live_monitoring_heartbeat(status: str, details: dict[str, Any] | None = None) -> None:
+    payload = {
+        "pid": os.getpid(),
+        "status": status,
+        "updated_at": now_iso(),
+        "details": details or {},
+    }
+    save_json_file(LIVE_MONITORING_BOT_HEARTBEAT_PATH, payload)
+
+
+def read_live_monitoring_heartbeat() -> dict[str, Any] | None:
+    payload = load_json_file(LIVE_MONITORING_BOT_HEARTBEAT_PATH, None)
     if not isinstance(payload, dict):
         return None
     return payload
@@ -187,6 +208,33 @@ def get_support_bot_status() -> dict[str, Any]:
     return {
         "pid": pid,
         "running": running,
+        "lock_exists": lock_exists,
+    }
+
+
+def get_live_monitoring_bot_status() -> dict[str, Any]:
+    pid = read_pid_from_lock(LIVE_MONITORING_BOT_LOCK_PATH)
+    lock_exists = LIVE_MONITORING_BOT_LOCK_PATH.exists()
+    if pid is None and lock_exists:
+        pid = find_python_process_for_script(LIVE_MONITORING_BOT_SCRIPT.name)
+    running = is_process_running(pid)
+    if pid and not running and lock_exists:
+        safe_unlink(LIVE_MONITORING_BOT_LOCK_PATH)
+        lock_exists = False
+    heartbeat = read_live_monitoring_heartbeat()
+    heartbeat_age_seconds = None
+    if heartbeat and heartbeat.get("updated_at"):
+        try:
+            heartbeat_time = datetime.fromisoformat(str(heartbeat["updated_at"]))
+            heartbeat_age_seconds = max(0.0, (datetime.now() - heartbeat_time).total_seconds())
+        except ValueError:
+            heartbeat_age_seconds = None
+
+    return {
+        "pid": pid,
+        "running": running,
+        "heartbeat": heartbeat,
+        "heartbeat_age_seconds": heartbeat_age_seconds,
         "lock_exists": lock_exists,
     }
 
@@ -361,6 +409,45 @@ def start_support_bot_process(python_executable: str | None = None) -> dict[str,
     }
 
 
+def start_live_monitoring_bot_process(python_executable: str | None = None) -> dict[str, Any]:
+    status = get_live_monitoring_bot_status()
+    if status["running"]:
+        return {"ok": False, "message": f"Live-Monitoring-Bot laeuft bereits mit PID {status['pid']}."}
+
+    executable = python_executable or sys.executable
+    log_handle = LIVE_MONITORING_BOT_PROCESS_LOG_PATH.open("ab")
+    kwargs: dict[str, Any] = {
+        "cwd": str(Path.cwd()),
+        "stdout": log_handle,
+        "stderr": log_handle,
+        "stdin": subprocess.DEVNULL,
+        "close_fds": True,
+    }
+    if os.name == "nt":
+        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+
+    try:
+        process = subprocess.Popen([executable, str(LIVE_MONITORING_BOT_SCRIPT)], **kwargs)
+    finally:
+        log_handle.close()
+    time.sleep(2)
+    if not is_process_running(process.pid):
+        safe_unlink(LIVE_MONITORING_BOT_LOCK_PATH)
+        return {
+            "ok": False,
+            "message": (
+                f"Live-Monitoring-Bot konnte nicht stabil gestartet werden (PID {process.pid}). "
+                f"Pruefe {LIVE_MONITORING_BOT_PROCESS_LOG_PATH.name}."
+            ),
+            "pid": process.pid,
+        }
+    return {
+        "ok": True,
+        "message": f"Live-Monitoring-Bot wurde gestartet (PID {process.pid}).",
+        "pid": process.pid,
+    }
+
+
 def stop_main_bot_process() -> dict[str, Any]:
     status = get_main_bot_status()
     pid = status["pid"]
@@ -415,6 +502,33 @@ def stop_support_bot_process() -> dict[str, Any]:
     return {"ok": True, "message": f"Support-Bot wurde gestoppt (PID {pid}).", "pid": pid}
 
 
+def stop_live_monitoring_bot_process() -> dict[str, Any]:
+    status = get_live_monitoring_bot_status()
+    pid = status["pid"]
+    if not status["running"]:
+        safe_unlink(LIVE_MONITORING_BOT_LOCK_PATH)
+        return {"ok": False, "message": "Live-Monitoring-Bot laeuft aktuell nicht."}
+
+    try:
+        if os.name == "nt":
+            completed = subprocess.run(
+                ["taskkill", "/PID", str(pid), "/T", "/F"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if completed.returncode != 0:
+                raise RuntimeError(completed.stderr.strip() or completed.stdout.strip() or "taskkill fehlgeschlagen")
+        else:
+            os.kill(pid, signal.SIGTERM)
+    except Exception as exc:
+        return {"ok": False, "message": f"Live-Monitoring-Bot konnte nicht gestoppt werden: {exc}"}
+
+    time.sleep(1)
+    safe_unlink(LIVE_MONITORING_BOT_LOCK_PATH)
+    return {"ok": True, "message": f"Live-Monitoring-Bot wurde gestoppt (PID {pid}).", "pid": pid}
+
+
 def restart_main_bot_process(python_executable: str | None = None) -> dict[str, Any]:
     stop_result = stop_main_bot_process()
     if stop_result["ok"]:
@@ -439,6 +553,25 @@ def restart_support_bot_process(python_executable: str | None = None) -> dict[st
     if stop_result["ok"]:
         time.sleep(2)
     start_result = start_support_bot_process(python_executable=python_executable)
+    if start_result["ok"]:
+        return {
+            "ok": True,
+            "message": (
+                f"Restart ausgefuehrt. "
+                f"{stop_result['message'] if stop_result else ''} {start_result['message']}"
+            ).strip(),
+            "pid": start_result.get("pid"),
+        }
+    if stop_result["ok"]:
+        return {"ok": False, "message": f"Stop war erfolgreich, Start aber fehlgeschlagen: {start_result['message']}"}
+    return {"ok": False, "message": f"Restart fehlgeschlagen: {stop_result['message']} | {start_result['message']}"}
+
+
+def restart_live_monitoring_bot_process(python_executable: str | None = None) -> dict[str, Any]:
+    stop_result = stop_live_monitoring_bot_process()
+    if stop_result["ok"]:
+        time.sleep(2)
+    start_result = start_live_monitoring_bot_process(python_executable=python_executable)
     if start_result["ok"]:
         return {
             "ok": True,

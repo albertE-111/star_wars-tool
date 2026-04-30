@@ -9,6 +9,14 @@
         <ticker_usa>^NDX</ticker_usa>
         <isin>US6311011026</isin>
         <wkn>A0AE1X</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>S&amp;P 500</name>
@@ -17,6 +25,14 @@
         <ticker_usa>^GSPC</ticker_usa>
         <isin>US78378X1072</isin>
         <wkn>A0AET0</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Dow Jones</name>
@@ -25,6 +41,14 @@
         <ticker_usa>^DJI</ticker_usa>
         <isin>US2605661048</isin>
         <wkn>969420</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Russell 2000</name>
@@ -33,6 +57,14 @@
         <ticker_usa>^RUT</ticker_usa>
         <isin>US7827001089</isin>
         <wkn>A1EZTD</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>DAX 40</name>
@@ -41,6 +73,14 @@
         <ticker_eu>^GDAXI</ticker_eu>
         <isin>DE0008469008</isin>
         <wkn>846900</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>CAC 40</name>
@@ -49,6 +89,14 @@
         <ticker_eu>^FCHI</ticker_eu>
         <isin>FR0003500008</isin>
         <wkn>969400</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>FTSE 100</name>
@@ -57,6 +105,14 @@
         <ticker_eu>^FTSE</ticker_eu>
         <isin>GB0001383545</isin>
         <wkn>969378</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>AEX</name>
@@ -65,6 +121,14 @@
         <ticker_eu>^AEX</ticker_eu>
         <isin>NL0000000107</isin>
         <wkn>969241</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Nikkei 225</name>
@@ -73,6 +137,14 @@
         <ticker_apac>^N225</ticker_apac>
         <isin>JP9010C00002</isin>
         <wkn>A1RRF6</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Hang Seng</name>
@@ -81,6 +153,14 @@
         <ticker_apac>^HSI</ticker_apac>
         <isin>HK0000004322</isin>
         <wkn>145733</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="Branchen-Indizes">
@@ -91,6 +171,14 @@
         <isin>EU000A2G9V11</isin>
         <wkn>A2G9V1</wkn>
         <tag>Technologie</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>EURO STOXX Banks</name>
@@ -99,6 +187,14 @@
         <isin>EU0009658426</isin>
         <wkn>965842</wkn>
         <tag>Banking</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>MSCI World Energy</name>
@@ -107,6 +203,14 @@
         <isin>EU000A2G9UZ5</isin>
         <wkn>A2G9UZ</wkn>
         <tag>Energy &amp; Oil</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>MSCI World Health Care</name>
@@ -115,6 +219,14 @@
         <isin>EU000A2G9V03</isin>
         <wkn>A2G9V0</wkn>
         <tag>Healthcare</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>STOXX Europe Luxury 10</name>
@@ -123,6 +235,14 @@
         <isin>CH1187488874</isin>
         <wkn>A3DL3G</wkn>
         <tag>Luxury Goods</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
   </category>
@@ -135,6 +255,14 @@
         <isin>US67066G1040</isin>
         <wkn>918422</wkn>
         <description>Das Herz der KI. Extrem volatil, perfekt fuer Hebel-Trades.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Tesla</name>
@@ -143,6 +271,14 @@
         <isin>US88160R1014</isin>
         <wkn>A1CX3T</wkn>
         <description>Die "Trader-Aktie" schlechthin. Reagiert extrem auf News von Elon Musk.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Apple</name>
@@ -151,6 +287,14 @@
         <isin>US0378331005</isin>
         <wkn>865985</wkn>
         <description>Oft stabiler, aber bei iPhone-Releases oder KI-Updates sehr trendstark.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Microsoft</name>
@@ -159,6 +303,14 @@
         <isin>US5949181045</isin>
         <wkn>870747</wkn>
         <description>Der Profiteur von Software-KI (Copilot).</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Meta Platforms</name>
@@ -167,6 +319,14 @@
         <isin>US30303M1027</isin>
         <wkn>A1JWVX</wkn>
         <description>Reagiert heftig auf Werbeeinnahmen und VR-News.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Alphabet</name>
@@ -175,6 +335,14 @@
         <isin>US02079K1079</isin>
         <wkn>A14Y6H</wkn>
         <description>Google. Oft fuer Short-Sells interessant, wenn sie den KI-Anschluss verlieren.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Amazon</name>
@@ -183,6 +351,14 @@
         <isin>US0231351067</isin>
         <wkn>906866</wkn>
         <description>Wichtig fuer Cloud (AWS) und Konsumdaten.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Broadcom</name>
@@ -191,6 +367,14 @@
         <isin>US11135F1012</isin>
         <wkn>A2JG9Z</wkn>
         <description>Der "stille Riese" der Vernetzung.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>AMD</name>
@@ -199,6 +383,14 @@
         <isin>US0079031078</isin>
         <wkn>863186</wkn>
         <description>Die aggressive Alternative zu Nvidia. Schwankt oft noch staerker.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Netflix</name>
@@ -207,6 +399,14 @@
         <isin>US64110L1061</isin>
         <wkn>552484</wkn>
         <description>Sehr volatil nach Abonnentenzahlen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>SunDisk</name>
@@ -214,6 +414,14 @@
         <ticker_usa>SNDK</ticker_usa>
         <isin>US80004C2008</isin>
         <wkn>A411ZM</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Deutsche Telekom AG</name>
@@ -221,6 +429,14 @@
         <isin>DE0005557508</isin>
         <wkn>555750</wkn>
         <ticker_eu>DTE.DE</ticker_eu>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>T-Mobile US Inc</name>
@@ -229,7 +445,15 @@
         <wkn>A1T7LU</wkn>
         <ticker_usa>TMUS</ticker_usa>
         <ticker_eu>TM5.DE</ticker_eu>
-        <description>T-Mobile US ist der zweitgrößte Mobilfunkanbieter in den USA und das „Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hält.</description>
+        <description>T-Mobile US ist der zweitgrÃƒÂ¶ÃƒÅ¸te Mobilfunkanbieter in den USA und das Ã¢â‚¬Å¾Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hÃƒÂ¤lt.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Intel Corp.</name>
@@ -238,7 +462,15 @@
         <wkn>855681</wkn>
         <ticker_usa>INTC</ticker_usa>
         <ticker_eu>INL.DE</ticker_eu>
-        <description>Intel ist einer der weltweit größten Halbleiterhersteller und das Urgestein der Computerchip-Industrie.</description>
+        <description>Intel ist einer der weltweit grÃƒÂ¶ÃƒÅ¸ten Halbleiterhersteller und das Urgestein der Computerchip-Industrie.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="KI-Infrastruktur">
@@ -249,6 +481,14 @@
         <isin>US86800U3023</isin>
         <wkn>A40MRM</wkn>
         <description>Extrem hohe Volatilitaet. Baut die Server-Schraenke fuer KI.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Vertiv Holdings</name>
@@ -257,6 +497,14 @@
         <isin>US92537N1081</isin>
         <wkn>A2PZ5A</wkn>
         <description>Spezialist fuer Kuehlung von Rechenzentren. KI-Infrastruktur braucht Strom und Thermomanagement.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Arm Holdings</name>
@@ -265,6 +513,14 @@
         <isin>US0420682058</isin>
         <wkn>A3EUCD</wkn>
         <description>Chip-Architektur mit oft massiven Kursspruengen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Nebius Group N.V.</name>
@@ -273,12 +529,28 @@
         <ticker_usa>NBIS</ticker_usa>
         <isin>NL0009805522</isin>
         <wkn>A1JGSL</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>TBC Bank Group</name>
         <ticker>TBCG</ticker>
         <ticker_eu>TBCG.L</ticker_eu>
         <ticker_usa>TBCG</ticker_usa>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="Energy Storage">
@@ -289,6 +561,14 @@
         <isin>US29355A1079</isin>
         <wkn>A1JC82</wkn>
         <description>Solar-Wechselrichter. Sehr volatil bei Zinsaenderungen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>First Solar</name>
@@ -297,6 +577,14 @@
         <isin>US3364331070</isin>
         <wkn>A0LEKM</wkn>
         <description>US-Marktfuehrer fuer Solarpanels.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>QuantumScape</name>
@@ -305,6 +593,14 @@
         <isin>US74767V1098</isin>
         <wkn>A2QJX9</wkn>
         <description>Wette auf die Feststoffbatterie. Extrem hohes Risiko.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="Cybersecurity">
@@ -316,6 +612,14 @@
         <isin>US22788C1053</isin>
         <wkn>A2PK2R</wkn>
         <description>Marktfuehrer bei Cloud-Sicherheit.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Palo Alto Networks</name>
@@ -324,6 +628,14 @@
         <isin>US6974351057</isin>
         <wkn>A1JZ0Q</wkn>
         <description>Der groesste Player im Bereich Firewalls.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Palantir</name>
@@ -333,6 +645,14 @@
         <isin>US69608A1088</isin>
         <wkn>A2QA4J</wkn>
         <description>Datenanalyse fuer Militaer und Firmen. Kult-Aktie bei Tradern.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Zscaler</name>
@@ -341,6 +661,14 @@
         <isin>US98980G1022</isin>
         <wkn>A2JF28</wkn>
         <description>Spezialist fuer sicheren Fernzugriff.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
   </category>
@@ -351,12 +679,28 @@
         <ticker>GC=F</ticker>
         <ticker_usa>GC=F</ticker_usa>
         <description>Gold-Futures als Yahoo-kompatibler Proxy fuer den aktuellen Goldpreis.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Silber</name>
         <ticker>SI=F</ticker>
         <ticker_usa>SI=F</ticker_usa>
         <description>Silber-Futures als Yahoo-kompatibler Proxy fuer den aktuellen Silberpreis.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="Energie">
@@ -365,12 +709,28 @@
         <ticker>BZ=F</ticker>
         <ticker_usa>BZ=F</ticker_usa>
         <description>Das Oel aus der Nordsee. Wichtig fuer Europa.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>WTI</name>
         <ticker>CL=F</ticker>
         <ticker_usa>CL=F</ticker_usa>
         <description>West Texas Intermediate. Das US-Leichtoel.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>true</enabled>
+          <target_price>100</target_price>
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="Industriemetalle">
@@ -383,6 +743,14 @@
         <wkn>896476</wkn>
         <tag>Kupfer</tag>
         <description>Einer der groessten Kupferproduzenten.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Rio Tinto</name>
@@ -393,6 +761,14 @@
         <wkn>852147</wkn>
         <tag>Kupfer</tag>
         <description>Gigantischer Bergbaukonzern mit Kupfer und Eisenerz.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Southern Copper</name>
@@ -402,6 +778,14 @@
         <wkn>A0HG1Y</wkn>
         <tag>Kupfer</tag>
         <description>Sitzt auf riesigen Kupferreserven in Peru und Mexiko.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Albemarle</name>
@@ -412,6 +796,14 @@
         <wkn>890167</wkn>
         <tag>Lithium</tag>
         <description>Weltmarktfuehrer bei Lithium fuer Batterien.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>SQM</name>
@@ -422,6 +814,14 @@
         <wkn>895007</wkn>
         <tag>Lithium</tag>
         <description>Grosser Lithium-Player aus Chile.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Arcadium Lithium</name>
@@ -431,10 +831,18 @@
         <wkn>A3E13Q</wkn>
         <tag>Lithium</tag>
         <description>Neuer grosser Zusammenschluss der Branche. Uebernahme durch Rio Tinto am 6. Maerz 2025 abgeschlossen, daher kein aktueller Boersenkurs mehr verfuegbar.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
   </category>
-  <category name="Rüstungsindustrie">
+  <category name="RÃƒÂ¼stungsindustrie">
     <subcategory name="Luftfahrt (Aerospace)">
       <index>
         <name>Mitsubishi Heavy Industries</name>
@@ -444,6 +852,14 @@
         <ticker_eu>MHI.DE</ticker_eu>
         <ticker_apac>7011.T</ticker_apac>
         <description>Mitsubishi Heavy Industries ist das industrielle Herz der Mitsubishi-Gruppe und ein globaler Gigant im Bereich Schwerindustrie.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Stammdaten IHI</name>
@@ -453,7 +869,15 @@
         <ticker_eu>IWJ.DE</ticker_eu>
         <ticker_apac>7013.T</ticker_apac>
         <land>Japan</land>
-        <description>IHI Corporation (früher Ishikawajima-Harima Heavy Industries) ist ein japanischer Industriegigant mit Fokus auf Technologie und Maschinenbau.</description>
+        <description>IHI Corporation (frÃƒÂ¼her Ishikawajima-Harima Heavy Industries) ist ein japanischer Industriegigant mit Fokus auf Technologie und Maschinenbau.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
       <index>
         <name>Subaru Corporation</name>
@@ -463,6 +887,14 @@
         <ticker_eu>FHI.DE</ticker_eu>
         <ticker_apac>7270.T</ticker_apac>
         <description>Subaru ist weit mehr als nur "Allrad-Autos". Die Sparte Subaru Aerospace ist ein tragender Pfeiler der japanischen Verteidigungsstrategie</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
     <subcategory name="Marinetechnik">
@@ -474,7 +906,15 @@
         <ticker_eu>KHE.DE</ticker_eu>
         <ticker_apac>7012.T</ticker_apac>
         <tag>Japan</tag>
-        <description>Kawasaki Heavy Industries ist einer der technologisch vielseitigsten Konzerne Japans. Während die Motorradsparte (Kawasaki Motors) nur einen Teil des Geschäfts ausmacht, liegen die</description>
+        <description>Kawasaki Heavy Industries ist einer der technologisch vielseitigsten Konzerne Japans. WÃƒÂ¤hrend die Motorradsparte (Kawasaki Motors) nur einen Teil des GeschÃƒÂ¤fts ausmacht, liegen die</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+        <live_monitoring>
+          <enabled>false</enabled>
+          <target_price />
+          <condition>above</condition>
+          <interval_min>5</interval_min>
+        </live_monitoring>
       </index>
     </subcategory>
   </category>
