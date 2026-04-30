@@ -25,8 +25,8 @@ from bot_monitoring import (
     stop_live_monitoring_bot_process,
     stop_main_bot_process,
 )
-from telegram import BotCommand, Update
-from telegram.ext import Application, ApplicationBuilder, CommandHandler, ContextTypes
+from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Application, ApplicationBuilder, CallbackQueryHandler, CommandHandler, ContextTypes
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -37,6 +37,7 @@ CONFIG_PATH = Path("config/app_config.json")
 SUPPORT_ALERT_STATE_PATH = Path("support_bot_alert_state.json")
 SUPPORT_MONITOR_JOB = "support_bot_monitor"
 MAX_MESSAGE_LENGTH = 3900
+CALLBACK_PREFIX_SUPPORT_MENU = "supmain:"
 
 MARKET_BRIEF_FUNCTION_HINTS = {
     "auto_market_brief_job",
@@ -469,6 +470,92 @@ async def require_access(update: Update, runtime: SupportRuntime) -> bool:
     return False
 
 
+def build_support_main_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Gesamtstatus", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}status")],
+            [
+                InlineKeyboardButton("Haupt-Bot", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}main_menu"),
+                InlineKeyboardButton("Live-Monitoring", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}live_menu"),
+            ],
+            [
+                InlineKeyboardButton("Auto-Brief", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}autobrief_menu"),
+                InlineKeyboardButton("Fehler", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}errors_menu"),
+            ],
+            [
+                InlineKeyboardButton("Diesen Chat speichern", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}notify_here"),
+                InlineKeyboardButton("Bot testen", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}ping"),
+            ],
+            [InlineKeyboardButton("Schliessen", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}done")],
+        ]
+    )
+
+
+def build_main_bot_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("Start", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}main_on"),
+                InlineKeyboardButton("Stop", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}main_off"),
+                InlineKeyboardButton("Restart", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}main_restart"),
+            ],
+            [InlineKeyboardButton("Status", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}status")],
+            [InlineKeyboardButton("Zurueck", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}back")],
+        ]
+    )
+
+
+def build_live_bot_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("Start", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}live_on"),
+                InlineKeyboardButton("Stop", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}live_off"),
+                InlineKeyboardButton("Restart", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}live_restart"),
+            ],
+            [InlineKeyboardButton("Status", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}live_status")],
+            [InlineKeyboardButton("Zurueck", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}back")],
+        ]
+    )
+
+
+def build_autobrief_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Ziel anzeigen", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}autobrief_status")],
+            [InlineKeyboardButton("Diesen Chat als Ziel setzen", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}autobrief_here")],
+            [InlineKeyboardButton("Zurueck", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}back")],
+        ]
+    )
+
+
+def build_errors_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Letzte Fehler", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}errors_recent")],
+            [InlineKeyboardButton("Offene Fehler", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}errors_open")],
+            [InlineKeyboardButton("Zurueck", callback_data=f"{CALLBACK_PREFIX_SUPPORT_MENU}back")],
+        ]
+    )
+
+
+async def show_support_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str = "") -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+    message_text = text or "Support-Bot\n\nWaehle eine Aktion:"
+    query = update.callback_query
+    message = update.effective_message
+    if query is not None:
+        await query.edit_message_text(message_text, reply_markup=build_support_main_menu_keyboard())
+    elif message is not None:
+        await message.reply_text(message_text, reply_markup=build_support_main_menu_keyboard())
+
+
+async def support_menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await show_support_main_menu(update, context)
+
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     runtime: SupportRuntime = context.application.bot_data["runtime"]
     if not await require_access(update, runtime):
@@ -480,22 +567,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     if message is not None:
         await message.reply_text(
             "Support-Bot aktiv.\n"
-            "Befehle:\n"
-            "/status - Haupt-Bot Status und Heartbeat\n"
-            "/autobrief_chat - Auto-Market-Brief Ziel anzeigen\n"
-            "/autobrief_chat_here - diesen Chat als Auto-Brief-Ziel setzen\n"
-            "/autobrief_chat_set <chat_id> - Auto-Brief-Ziel manuell setzen\n"
-            "/main_on - Haupt-Bot starten\n"
-            "/main_off - Haupt-Bot stoppen\n"
-            "/main_restart - Haupt-Bot neu starten\n"
-            "/live_status - Live-Monitoring-Bot Status\n"
-            "/live_on - Live-Monitoring-Bot starten\n"
-            "/live_off - Live-Monitoring-Bot stoppen\n"
-            "/live_restart - Live-Monitoring-Bot neu starten\n"
-            "/errors - letzte Fehlermeldungen anzeigen\n"
-            "/open_errors - offene Market-Brief-Fehler\n"
-            "/resolve_error <id> - Fehler als geloest markieren\n"
-            "/ping - Support-Bot testen"
+            "Dieser Chat wurde als Support-Ziel gespeichert.\n\n"
+            "Oeffne das Menue mit /support.",
+            reply_markup=build_support_main_menu_keyboard(),
         )
 
 
@@ -506,6 +580,136 @@ async def ping_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     message = update.effective_message
     if message is not None:
         await message.reply_text("pong")
+
+
+async def support_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    runtime: SupportRuntime = context.application.bot_data["runtime"]
+    if not await require_access(update, runtime):
+        return
+
+    query = update.callback_query
+    if query is None:
+        return
+    await query.answer()
+    action = query.data.removeprefix(CALLBACK_PREFIX_SUPPORT_MENU)
+
+    if action == "done":
+        await query.edit_message_text("Support-Menue geschlossen.")
+        return
+
+    if action == "back":
+        await query.edit_message_text("Support-Bot\n\nWaehle eine Aktion:", reply_markup=build_support_main_menu_keyboard())
+        return
+
+    if action == "ping":
+        await query.edit_message_text("pong", reply_markup=build_support_main_menu_keyboard())
+        return
+
+    if action == "notify_here":
+        chat = update.effective_chat
+        if chat is not None:
+            save_notify_chat_id(runtime, chat.id)
+            text = "Dieser Chat wurde als Support-Ziel gespeichert."
+        else:
+            text = "Kein Chat gefunden."
+        await query.edit_message_text(text, reply_markup=build_support_main_menu_keyboard())
+        return
+
+    if action == "status":
+        await query.edit_message_text(format_status(runtime), reply_markup=build_support_main_menu_keyboard())
+        return
+
+    if action == "main_menu":
+        await query.edit_message_text("Haupt-Bot steuern:", reply_markup=build_main_bot_menu_keyboard())
+        return
+
+    if action == "live_menu":
+        await query.edit_message_text("Live-Monitoring-Bot steuern:", reply_markup=build_live_bot_menu_keyboard())
+        return
+
+    if action == "autobrief_menu":
+        await query.edit_message_text(format_auto_brief_target(runtime), reply_markup=build_autobrief_menu_keyboard())
+        return
+
+    if action == "errors_menu":
+        await query.edit_message_text("Fehleruebersicht:", reply_markup=build_errors_menu_keyboard())
+        return
+
+    if action in {"main_on", "main_off", "main_restart"}:
+        if action == "main_on":
+            result = start_main_bot_process(python_executable=sys.executable)
+        elif action == "main_off":
+            result = stop_main_bot_process()
+        else:
+            result = restart_main_bot_process(python_executable=sys.executable)
+        append_event("support_bot", "INFO", result["message"])
+        await query.edit_message_text(result["message"], reply_markup=build_main_bot_menu_keyboard())
+        return
+
+    if action in {"live_on", "live_off", "live_restart"}:
+        if action == "live_on":
+            result = start_live_monitoring_bot_process(python_executable=sys.executable)
+        elif action == "live_off":
+            result = stop_live_monitoring_bot_process()
+        else:
+            result = restart_live_monitoring_bot_process(python_executable=sys.executable)
+        append_event("support_bot", "INFO", result["message"])
+        await query.edit_message_text(result["message"], reply_markup=build_live_bot_menu_keyboard())
+        return
+
+    if action == "live_status":
+        await query.edit_message_text(format_live_monitoring_status(), reply_markup=build_live_bot_menu_keyboard())
+        return
+
+    if action == "autobrief_status":
+        await query.edit_message_text(format_auto_brief_target(runtime), reply_markup=build_autobrief_menu_keyboard())
+        return
+
+    if action == "autobrief_here":
+        chat = update.effective_chat
+        if chat is None:
+            await query.edit_message_text("Kein Chat gefunden.", reply_markup=build_autobrief_menu_keyboard())
+            return
+        result = apply_auto_brief_chat_change(runtime, chat.id)
+        title = chat.title or ""
+        target_label = title if title else (chat.username or chat.full_name or str(chat.id))
+        response = "\n".join(
+            [
+                "Auto-Market-Brief Zielchat wurde aktualisiert.",
+                f"Vorherige Chat-ID: {result['previous_chat_id']}",
+                f"Neue Chat-ID: {result['new_chat_id']}",
+                f"Zielchat: {target_label}",
+                "",
+                result["restart_message"],
+            ]
+        )
+        await query.edit_message_text(response, reply_markup=build_autobrief_menu_keyboard())
+        return
+
+    if action == "errors_recent":
+        events = read_recent_events(limit=5, min_level="ERROR")
+        if not events:
+            await query.edit_message_text("Keine Fehlermeldungen vorhanden.", reply_markup=build_errors_menu_keyboard())
+            return
+        text = "\n\n".join(format_event(event) for event in events)
+        chunks = split_message(text)
+        await query.edit_message_text(chunks[0], reply_markup=build_errors_menu_keyboard())
+        for chunk in chunks[1:]:
+            if query.message is not None:
+                await query.message.reply_text(chunk)
+        return
+
+    if action == "errors_open":
+        incidents = get_open_incidents(runtime)
+        if not incidents:
+            await query.edit_message_text("Keine offenen Market-Brief-Fehler.", reply_markup=build_errors_menu_keyboard())
+            return
+        header = f"Offene Market-Brief-Fehler: {len(incidents)}"
+        body = "\n\n".join(format_incident(incident) for incident in incidents[:10])
+        await query.edit_message_text(f"{header}\n\n{body}", reply_markup=build_errors_menu_keyboard())
+        return
+
+    await query.edit_message_text("Ungueltige Auswahl.", reply_markup=build_support_main_menu_keyboard())
 
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -839,20 +1043,7 @@ async def support_error_handler(update: object, context: ContextTypes.DEFAULT_TY
 async def post_init(application: Application) -> None:
     await application.bot.set_my_commands(
         [
-            BotCommand("status", "Status und Heartbeat des Haupt-Bots"),
-            BotCommand("autobrief_chat", "Auto-Market-Brief Zielchat anzeigen"),
-            BotCommand("autobrief_chat_here", "Diesen Chat als Auto-Brief-Ziel setzen"),
-            BotCommand("main_on", "Haupt-Bot starten"),
-            BotCommand("main_off", "Haupt-Bot stoppen"),
-            BotCommand("main_restart", "Haupt-Bot neu starten"),
-            BotCommand("live_status", "Live-Monitoring-Bot Status"),
-            BotCommand("live_on", "Live-Monitoring-Bot starten"),
-            BotCommand("live_off", "Live-Monitoring-Bot stoppen"),
-            BotCommand("live_restart", "Live-Monitoring-Bot neu starten"),
-            BotCommand("errors", "Letzte Fehlermeldungen"),
-            BotCommand("open_errors", "Offene Market-Brief-Fehler"),
-            BotCommand("resolve_error", "Market-Brief-Fehler als geloest markieren"),
-            BotCommand("start", "Support-Bot aktivieren"),
+            BotCommand("support", "Support-Menue oeffnen"),
         ]
     )
 
@@ -866,6 +1057,8 @@ def build_application() -> Application:
     runtime = build_runtime(config)
     application = ApplicationBuilder().token(token).post_init(post_init).build()
     application.bot_data["runtime"] = runtime
+    application.add_handler(CommandHandler("support", support_menu_command))
+    application.add_handler(CallbackQueryHandler(support_menu_callback, pattern=f"^{CALLBACK_PREFIX_SUPPORT_MENU}"))
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("ping", ping_command))
     application.add_handler(CommandHandler("status", status_command))

@@ -167,7 +167,7 @@ Verwendung der wichtigsten Felder:
     - Auto-Market-Brief deaktiviert
     - neue Market-Brief-Fehler
 5. Offene Fehler werden als Incidents gespeichert und koennen im Support-Bot auf geloest gesetzt werden.
-6. `live_monitoring_bot.py` schreibt einen eigenen Heartbeat und kann ueber den Support-Bot mit `/live_on`, `/live_off` und `/live_restart` gesteuert werden.
+6. `live_monitoring_bot.py` schreibt einen eigenen Heartbeat und kann im Support-Bot ueber `/support` -> `Live-Monitoring` gesteuert werden.
 
 ### 4. Listenpflege
 

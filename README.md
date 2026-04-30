@@ -56,7 +56,7 @@ Live-Monitoring-Bot direkt:
 .venv\Scripts\python.exe live_monitoring_bot.py
 ```
 
-Alternativ ueber den Support-Bot mit `/live_on`, `/live_off` und `/live_restart` steuern.
+Alternativ ueber den Support-Bot mit `/support` oeffnen und dort `Live-Monitoring` waehlen.
 
 ## Wichtiger Hinweis
 

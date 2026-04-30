@@ -21,7 +21,7 @@ Aus dem Code ersichtlich sind unter anderem folgende Commands:
 
 ### Support und Verwaltung
 
-- `/supportbot`: Status und Steuerung des Support-Bots
+- `/supportbot`: Status und Steuerung des Support-Bots aus dem Haupt-Bot heraus
 - `/listenpflege`: XML-Instrumentenliste pflegen
 - `/listenpflege` fuehrt beim Hinzufuegen zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`, `trade_republic_aktie`, `trade_republic_derivate`
 - `/listenpflege` bietet danach per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description`
@@ -33,25 +33,21 @@ Aus dem Code ersichtlich sind unter anderem folgende Commands:
 
 - `/certificate_scraper_start`: interaktiven Zertifikate-Workflow starten
 
-## Telegram-Kommandos des Support-Bots
+## Telegram-Menue des Support-Bots
 
-Im Support-Bot sind unter anderem diese Commands registriert:
+Im Telegram-Bot-Menue des Support-Bots ist nur ein Command sichtbar:
 
-- `/status`: Status und Heartbeat des Haupt-Bots
-- `/main_on`: Haupt-Bot starten
-- `/main_off`: Haupt-Bot stoppen
-- `/main_restart`: Haupt-Bot neu starten
-- `/live_status`: Live-Monitoring-Bot Status anzeigen
-- `/live_on`: Live-Monitoring-Bot starten
-- `/live_off`: Live-Monitoring-Bot stoppen
-- `/live_restart`: Live-Monitoring-Bot neu starten
-- `/autobrief_chat`: aktuell konfigurierte Auto-Market-Brief-Chat-ID und zentrale Auto-Brief-Einstellungen anzeigen
-- `/autobrief_chat_here`: den aktuellen Support-Bot-Chat als Ziel fuer den Auto-Market-Brief setzen
-- `/autobrief_chat_set <chat_id>`: Ziel-Chat-ID fuer den Auto-Market-Brief manuell auf einen Zahlenwert setzen
-- `/errors`: letzte Fehlermeldungen anzeigen
-- `/open_errors`: offene Market-Brief-Fehler anzeigen
-- `/resolve_error`: Fehler als geloest markieren
-- `/start`: Startnachricht des Support-Bots
+- `/support`: Support-Menue oeffnen
+
+Nach dem Klick erscheinen Buttons fuer:
+
+- `Gesamtstatus`: Status von Haupt-Bot, Auto-Brief und Live-Monitoring anzeigen
+- `Haupt-Bot`: Start, Stop, Restart und Status
+- `Live-Monitoring`: Start, Stop, Restart und Status des Live-Monitoring-Bots
+- `Auto-Brief`: Zielchat anzeigen und aktuellen Support-Chat als Ziel setzen
+- `Fehler`: letzte Fehler und offene Market-Brief-Fehler anzeigen
+- `Diesen Chat speichern`: aktuellen Chat als Support-Ziel speichern
+- `Bot testen`: Ping-Test ausfuehren
 
 Hinweis: Die durch `/autobrief_chat_here` oder `/autobrief_chat_set` gesetzte Ziel-Chat-ID wird dauerhaft in `config/app_config.json` unter `auto_market_brief.chat_id` gespeichert.
 
