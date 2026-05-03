@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <stockCategories>
   <category name="Indizes">
-    <subcategory name="Laender-Indizes">
+    <subcategory name="Laender">
       <index>
         <name>Nasdaq 100</name>
         <land>USA</land>
@@ -103,7 +103,7 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
     </subcategory>
-    <subcategory name="Branchen-Indizes">
+    <subcategory name="Sektoren">
       <index>
         <name>MSCI World Information Tech</name>
         <ticker>XDWT.DE</ticker>
@@ -156,28 +156,8 @@
       </index>
     </subcategory>
   </category>
-  <category name="Einzelaktien">
-    <subcategory name="Big Tech">
-      <index>
-        <name>Nvidia</name>
-        <ticker>NVDA</ticker>
-        <ticker_usa>NVDA</ticker_usa>
-        <isin>US67066G1040</isin>
-        <wkn>918422</wkn>
-        <description>Das Herz der KI. Extrem volatil, perfekt fuer Hebel-Trades.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>Tesla</name>
-        <ticker>TSLA</ticker>
-        <ticker_usa>TSLA</ticker_usa>
-        <isin>US88160R1014</isin>
-        <wkn>A1CX3T</wkn>
-        <description>Die "Trader-Aktie" schlechthin. Reagiert extrem auf News von Elon Musk.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
+  <category name="Aktien">
+    <subcategory name="Technologie">
       <index>
         <name>Apple</name>
         <ticker>AAPL</ticker>
@@ -195,16 +175,6 @@
         <isin>US5949181045</isin>
         <wkn>870747</wkn>
         <description>Der Profiteur von Software-KI (Copilot).</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>Meta Platforms</name>
-        <ticker>META</ticker>
-        <ticker_usa>META</ticker_usa>
-        <isin>US30303M1027</isin>
-        <wkn>A1JWVX</wkn>
-        <description>Reagiert heftig auf Werbeeinnahmen und VR-News.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
@@ -229,22 +199,12 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
       <index>
-        <name>Broadcom</name>
-        <ticker>AVGO</ticker>
-        <ticker_usa>AVGO</ticker_usa>
-        <isin>US11135F1012</isin>
-        <wkn>A2JG9Z</wkn>
-        <description>Der "stille Riese" der Vernetzung.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>AMD</name>
-        <ticker>AMD</ticker>
-        <ticker_usa>AMD</ticker_usa>
-        <isin>US0079031078</isin>
-        <wkn>863186</wkn>
-        <description>Die aggressive Alternative zu Nvidia. Schwankt oft noch staerker.</description>
+        <name>Meta Platforms</name>
+        <ticker>META</ticker>
+        <ticker_usa>META</ticker_usa>
+        <isin>US30303M1027</isin>
+        <wkn>A1JWVX</wkn>
+        <description>Reagiert heftig auf Werbeeinnahmen und VR-News.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
@@ -259,31 +219,42 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
       <index>
-        <name>SunDisk</name>
-        <ticker>SNDK</ticker>
-        <ticker_usa>SNDK</ticker_usa>
-        <isin>US80004C2008</isin>
-        <wkn>A411ZM</wkn>
+        <name>Tesla</name>
+        <ticker>TSLA</ticker>
+        <ticker_usa>TSLA</ticker_usa>
+        <isin>US88160R1014</isin>
+        <wkn>A1CX3T</wkn>
+        <description>Die "Trader-Aktie" schlechthin. Reagiert extrem auf News von Elon Musk.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
       <index>
-        <name>Deutsche Telekom AG</name>
-        <ticker>DTE.DE</ticker>
-        <isin>DE0005557508</isin>
-        <wkn>555750</wkn>
-        <ticker_eu>DTE.DE</ticker_eu>
+        <name>Nvidia</name>
+        <ticker>NVDA</ticker>
+        <ticker_usa>NVDA</ticker_usa>
+        <isin>US67066G1040</isin>
+        <wkn>918422</wkn>
+        <description>Das Herz der KI. Extrem volatil, perfekt fuer Hebel-Trades.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
       <index>
-        <name>T-Mobile US Inc</name>
-        <ticker>TMUS</ticker>
-        <isin>US8725901040</isin>
-        <wkn>A1T7LU</wkn>
-        <ticker_usa>TMUS</ticker_usa>
-        <ticker_eu>TM5.DE</ticker_eu>
-        <description>T-Mobile US ist der zweitgrÃƒÂ¶ÃƒÅ¸te Mobilfunkanbieter in den USA und das Ã¢â‚¬Å¾Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hÃƒÂ¤lt.</description>
+        <name>AMD</name>
+        <ticker>AMD</ticker>
+        <ticker_usa>AMD</ticker_usa>
+        <isin>US0079031078</isin>
+        <wkn>863186</wkn>
+        <description>Die aggressive Alternative zu Nvidia. Schwankt oft noch staerker.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Broadcom</name>
+        <ticker>AVGO</ticker>
+        <ticker_usa>AVGO</ticker_usa>
+        <isin>US11135F1012</isin>
+        <wkn>A2JG9Z</wkn>
+        <description>Der "stille Riese" der Vernetzung.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
@@ -298,8 +269,25 @@
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
-    </subcategory>
-    <subcategory name="KI-Infrastruktur">
+      <index>
+        <name>Arm Holdings</name>
+        <ticker>ARM</ticker>
+        <ticker_usa>ARM</ticker_usa>
+        <isin>US0420682058</isin>
+        <wkn>A3EUCD</wkn>
+        <description>Chip-Architektur mit oft massiven Kursspruengen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>SunDisk</name>
+        <ticker>SNDK</ticker>
+        <ticker_usa>SNDK</ticker_usa>
+        <isin>US80004C2008</isin>
+        <wkn>A411ZM</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
       <index>
         <name>Super Micro Computer</name>
         <ticker>SMCI</ticker>
@@ -321,16 +309,6 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
       <index>
-        <name>Arm Holdings</name>
-        <ticker>ARM</ticker>
-        <ticker_usa>ARM</ticker_usa>
-        <isin>US0420682058</isin>
-        <wkn>A3EUCD</wkn>
-        <description>Chip-Architektur mit oft massiven Kursspruengen.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
         <name>Nebius Group N.V.</name>
         <ticker>NBIS</ticker>
         <ticker_eu>YDX.F</ticker_eu>
@@ -341,6 +319,160 @@
         <trade_republic_derivate>ja</trade_republic_derivate>
       </index>
       <index>
+        <name>Palantir</name>
+        <ticker>PLTR</ticker>
+        <ticker_eu>PTX.F</ticker_eu>
+        <ticker_usa>PLTR</ticker_usa>
+        <isin>US69608A1088</isin>
+        <wkn>A2QA4J</wkn>
+        <description>Datenanalyse fuer Militaer und Firmen. Kult-Aktie bei Tradern.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>CrowdStrike</name>
+        <ticker>CRWD</ticker>
+        <ticker_eu>45C.F</ticker_eu>
+        <ticker_usa>CRWD</ticker_usa>
+        <isin>US22788C1053</isin>
+        <wkn>A2PK2R</wkn>
+        <description>Marktfuehrer bei Cloud-Sicherheit.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Palo Alto Networks</name>
+        <ticker>PANW</ticker>
+        <ticker_usa>PANW</ticker_usa>
+        <isin>US6974351057</isin>
+        <wkn>A1JZ0Q</wkn>
+        <description>Der groesste Player im Bereich Firewalls.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Zscaler</name>
+        <ticker>ZS</ticker>
+        <ticker_usa>ZS</ticker_usa>
+        <isin>US98980G1022</isin>
+        <wkn>A2JF28</wkn>
+        <description>Spezialist fuer sicheren Fernzugriff.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>SAP SE</name>
+        <ticker>SAP</ticker>
+        <isin>DE0007164600</isin>
+        <wkn>716460</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <ticker_eu>SAP.DE</ticker_eu>
+        <land>Deutschland</land>
+        <tag>SAP</tag>
+        <description>SAP ist ein weltweit führender Anbieter von Unternehmenssoftware.</description>
+        <ticker_usa>SAP</ticker_usa>
+      </index>
+    </subcategory>
+    <subcategory name="Industrie">
+      <index>
+        <name>Deutsche Telekom AG</name>
+        <ticker>DTE.DE</ticker>
+        <isin>DE0005557508</isin>
+        <wkn>555750</wkn>
+        <ticker_eu>DTE.DE</ticker_eu>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>T-Mobile US Inc</name>
+        <ticker>TMUS</ticker>
+        <isin>US8725901040</isin>
+        <wkn>A1T7LU</wkn>
+        <ticker_usa>TMUS</ticker_usa>
+        <ticker_eu>TM5.DE</ticker_eu>
+        <description>T-Mobile US ist der zweitgrÃƒÂ¶ÃƒÅ¸te Mobilfunkanbieter in den USA und das Ã¢â‚¬Å¾Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hÃƒÂ¤lt.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Siemens AG</name>
+        <ticker>SIE</ticker>
+        <isin>DE0001965002</isin>
+        <wkn>723610</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <ticker_usa>SIEGY</ticker_usa>
+        <ticker_eu>SIE.DE</ticker_eu>
+        <land>Deutschland</land>
+        <tag>bluechip</tag>
+        <description>Siemens ist ein weltweit führendes Technologieunternehmen, das sich auf die Bereiche Industrie, Infrastruktur, Transport und Gesundheitswesen konzentriert.</description>
+      </index>
+      <index>
+        <name>Mitsubishi Heavy Industries</name>
+        <ticker>7011</ticker>
+        <isin>JP3900000005</isin>
+        <wkn>853314</wkn>
+        <ticker_eu>MHI.DE</ticker_eu>
+        <ticker_apac>7011.T</ticker_apac>
+        <description>Mitsubishi Heavy Industries ist das industrielle Herz der Mitsubishi-Gruppe und ein globaler Gigant im Bereich Schwerindustrie.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Stammdaten IHI</name>
+        <ticker>7013</ticker>
+        <isin>JP3134800006</isin>
+        <wkn>854347</wkn>
+        <ticker_eu>IWJ.DE</ticker_eu>
+        <ticker_apac>7013.T</ticker_apac>
+        <land>Japan</land>
+        <description>IHI Corporation (frÃƒÂ¼her Ishikawajima-Harima Heavy Industries) ist ein japanischer Industriegigant mit Fokus auf Technologie und Maschinenbau.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Subaru Corporation</name>
+        <ticker>7270</ticker>
+        <isin>JP3814800003</isin>
+        <wkn>855686</wkn>
+        <ticker_eu>FHI.DE</ticker_eu>
+        <ticker_apac>7270.T</ticker_apac>
+        <description>Subaru ist weit mehr als nur "Allrad-Autos". Die Sparte Subaru Aerospace ist ein tragender Pfeiler der japanischen Verteidigungsstrategie</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Kawasaki Heavy</name>
+        <ticker>7012</ticker>
+        <isin>JP3224200000</isin>
+        <wkn>858920</wkn>
+        <ticker_eu>KHE.DE</ticker_eu>
+        <ticker_apac>7012.T</ticker_apac>
+        <tag>Japan</tag>
+        <description>Kawasaki Heavy Industries ist einer der technologisch vielseitigsten Konzerne Japans. WÃƒÂ¤hrend die Motorradsparte (Kawasaki Motors) nur einen Teil des GeschÃƒÂ¤fts ausmacht, liegen die</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Gesundheit">
+      <index>
+        <name>Bayer AG</name>
+        <ticker>BAYN</ticker>
+        <isin>DE000BAY0017</isin>
+        <wkn>BAY001</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <ticker_usa>BAYRY</ticker_usa>
+        <ticker_eu>BAYN.DE</ticker_eu>
+        <ticker_apac>BAYER.BD</ticker_apac>
+        <land>Deutschland</land>
+        <tag>pharma</tag>
+        <description>Bayer ist ein multinationales Unternehmen mit Kernkompetenzen in den Bereichen Gesundheitswesen und Agrarwirtschaft.</description>
+      </index>
+    </subcategory>
+    <subcategory name="Finanzen">
+      <index>
         <name>TBC Bank Group</name>
         <ticker>TBCG</ticker>
         <ticker_eu>TBCG.L</ticker_eu>
@@ -349,7 +481,7 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
     </subcategory>
-    <subcategory name="Energy Storage">
+    <subcategory name="Energie">
       <index>
         <name>Enphase Energy</name>
         <ticker>ENPH</ticker>
@@ -381,53 +513,9 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
     </subcategory>
-    <subcategory name="Cybersecurity">
-      <index>
-        <name>CrowdStrike</name>
-        <ticker>CRWD</ticker>
-        <ticker_eu>45C.F</ticker_eu>
-        <ticker_usa>CRWD</ticker_usa>
-        <isin>US22788C1053</isin>
-        <wkn>A2PK2R</wkn>
-        <description>Marktfuehrer bei Cloud-Sicherheit.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>Palo Alto Networks</name>
-        <ticker>PANW</ticker>
-        <ticker_usa>PANW</ticker_usa>
-        <isin>US6974351057</isin>
-        <wkn>A1JZ0Q</wkn>
-        <description>Der groesste Player im Bereich Firewalls.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>Palantir</name>
-        <ticker>PLTR</ticker>
-        <ticker_eu>PTX.F</ticker_eu>
-        <ticker_usa>PLTR</ticker_usa>
-        <isin>US69608A1088</isin>
-        <wkn>A2QA4J</wkn>
-        <description>Datenanalyse fuer Militaer und Firmen. Kult-Aktie bei Tradern.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>Zscaler</name>
-        <ticker>ZS</ticker>
-        <ticker_usa>ZS</ticker_usa>
-        <isin>US98980G1022</isin>
-        <wkn>A2JF28</wkn>
-        <description>Spezialist fuer sicheren Fernzugriff.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-    </subcategory>
   </category>
   <category name="Rohstoffe">
-    <subcategory name="Edelmetalle">
+    <subcategory name="Metalle">
       <index>
         <name>Gold</name>
         <ticker>GC=F</ticker>
@@ -444,26 +532,6 @@
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
-    </subcategory>
-    <subcategory name="Energie">
-      <index>
-        <name>Brent Crude</name>
-        <ticker>BZ=F</ticker>
-        <ticker_usa>BZ=F</ticker_usa>
-        <description>Das Oel aus der Nordsee. Wichtig fuer Europa.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>WTI</name>
-        <ticker>CL=F</ticker>
-        <ticker_usa>CL=F</ticker_usa>
-        <description>West Texas Intermediate. Das US-Leichtoel.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-    </subcategory>
-    <subcategory name="Industriemetalle">
       <index>
         <name>Freeport-McMoRan</name>
         <ticker>FCX</ticker>
@@ -535,54 +603,20 @@
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
     </subcategory>
-  </category>
-  <category name="RÃƒÂ¼stungsindustrie">
-    <subcategory name="Luftfahrt (Aerospace)">
+    <subcategory name="Energie">
       <index>
-        <name>Mitsubishi Heavy Industries</name>
-        <ticker>7011</ticker>
-        <isin>JP3900000005</isin>
-        <wkn>853314</wkn>
-        <ticker_eu>MHI.DE</ticker_eu>
-        <ticker_apac>7011.T</ticker_apac>
-        <description>Mitsubishi Heavy Industries ist das industrielle Herz der Mitsubishi-Gruppe und ein globaler Gigant im Bereich Schwerindustrie.</description>
+        <name>Brent Crude</name>
+        <ticker>BZ=F</ticker>
+        <ticker_usa>BZ=F</ticker_usa>
+        <description>Das Oel aus der Nordsee. Wichtig fuer Europa.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>
       <index>
-        <name>Stammdaten IHI</name>
-        <ticker>7013</ticker>
-        <isin>JP3134800006</isin>
-        <wkn>854347</wkn>
-        <ticker_eu>IWJ.DE</ticker_eu>
-        <ticker_apac>7013.T</ticker_apac>
-        <land>Japan</land>
-        <description>IHI Corporation (frÃƒÂ¼her Ishikawajima-Harima Heavy Industries) ist ein japanischer Industriegigant mit Fokus auf Technologie und Maschinenbau.</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-      <index>
-        <name>Subaru Corporation</name>
-        <ticker>7270</ticker>
-        <isin>JP3814800003</isin>
-        <wkn>855686</wkn>
-        <ticker_eu>FHI.DE</ticker_eu>
-        <ticker_apac>7270.T</ticker_apac>
-        <description>Subaru ist weit mehr als nur "Allrad-Autos". Die Sparte Subaru Aerospace ist ein tragender Pfeiler der japanischen Verteidigungsstrategie</description>
-        <trade_republic_aktie>unbekannt</trade_republic_aktie>
-        <trade_republic_derivate>unbekannt</trade_republic_derivate>
-      </index>
-    </subcategory>
-    <subcategory name="Marinetechnik">
-      <index>
-        <name>Kawasaki Heavy</name>
-        <ticker>7012</ticker>
-        <isin>JP3224200000</isin>
-        <wkn>858920</wkn>
-        <ticker_eu>KHE.DE</ticker_eu>
-        <ticker_apac>7012.T</ticker_apac>
-        <tag>Japan</tag>
-        <description>Kawasaki Heavy Industries ist einer der technologisch vielseitigsten Konzerne Japans. WÃƒÂ¤hrend die Motorradsparte (Kawasaki Motors) nur einen Teil des GeschÃƒÂ¤fts ausmacht, liegen die</description>
+        <name>WTI</name>
+        <ticker>CL=F</ticker>
+        <ticker_usa>CL=F</ticker_usa>
+        <description>West Texas Intermediate. Das US-Leichtoel.</description>
         <trade_republic_aktie>unbekannt</trade_republic_aktie>
         <trade_republic_derivate>unbekannt</trade_republic_derivate>
       </index>

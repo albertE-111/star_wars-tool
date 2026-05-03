@@ -1,10 +1,13 @@
 ﻿from __future__ import annotations
 
 import asyncio
+import difflib
 import json
 import logging
 import os
 import shutil
+import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from pathlib import Path
@@ -32,10 +35,11 @@ from bot_monitoring import (
     stop_support_bot_process,
     write_heartbeat,
 )
-from gemini_article_summary import resolve_api_key, summarize_article_with_cache
+from gemini_article_summary import call_gemini, extract_response_text, load_requests, resolve_api_key, summarize_article_with_cache
 from market_brief import (
     build_global_hot_topics_section,
     build_global_lead_section,
+    fetch_quote_data,
     fetch_market_brief,
     load_index_entry,
     print_text as print_market_brief_text,
@@ -104,6 +108,9 @@ STATE_LIST_DELETE_CONFIRM = 49
 STATE_SUPPORT_MENU = 50
 STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE = 51
 STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE = 52
+STATE_LIST_ADD_MODE = 53
+STATE_LIST_ADD_AUTO_LOOKUP_TYPE = 54
+STATE_LIST_ADD_AUTO_LOOKUP_VALUE = 55
 STATE_MAIN_MENU = 60
 STATE_MARKETBRIEF_QUERY = 61
 CALLBACK_PREFIX_CATEGORY = "mbc:"
@@ -126,6 +133,8 @@ CALLBACK_PREFIX_LIST_CONFIRM = "lpy:"
 CALLBACK_PREFIX_LIST_ADD_CATEGORY = "lpac:"
 CALLBACK_PREFIX_LIST_ADD_SUBCATEGORY = "lpas:"
 CALLBACK_PREFIX_LIST_ADD_NAME = "lpan:"
+CALLBACK_PREFIX_LIST_ADD_MODE = "lpam:"
+CALLBACK_PREFIX_LIST_ADD_AUTO = "lpaa:"
 CALLBACK_PREFIX_LIST_OPTIONAL = "lpao:"
 CALLBACK_PREFIX_SUPPORT = "sup:"
 CALLBACK_PREFIX_MAIN_MENU = "mainmenu:"
@@ -1807,6 +1816,29 @@ def build_list_add_category_keyboard(categories: list[str]) -> InlineKeyboardMar
     return build_option_keyboard(options)
 
 
+def build_list_add_mode_keyboard() -> InlineKeyboardMarkup:
+    return build_option_keyboard(
+        [
+            ("Manuell", f"{CALLBACK_PREFIX_LIST_ADD_MODE}manual"),
+            ("Automatisch", f"{CALLBACK_PREFIX_LIST_ADD_MODE}auto"),
+            ("Zurueck", f"{CALLBACK_PREFIX_LIST_ADD_MODE}back"),
+            ("Abbrechen", f"{CALLBACK_PREFIX_LIST_ADD_MODE}cancel"),
+        ]
+    )
+
+
+def build_list_add_auto_lookup_keyboard() -> InlineKeyboardMarkup:
+    return build_option_keyboard(
+        [
+            ("Name", f"{CALLBACK_PREFIX_LIST_ADD_AUTO}name"),
+            ("WKN", f"{CALLBACK_PREFIX_LIST_ADD_AUTO}wkn"),
+            ("ISIN", f"{CALLBACK_PREFIX_LIST_ADD_AUTO}isin"),
+            ("Zurueck", f"{CALLBACK_PREFIX_LIST_ADD_AUTO}back"),
+            ("Abbrechen", f"{CALLBACK_PREFIX_LIST_ADD_AUTO}cancel"),
+        ]
+    )
+
+
 def build_list_add_subcategory_keyboard(subcategories: list[str]) -> InlineKeyboardMarkup:
     options = [(item, f"{CALLBACK_PREFIX_LIST_ADD_SUBCATEGORY}{item}") for item in subcategories]
     options.extend(
@@ -1893,6 +1925,313 @@ def trade_republic_field_prompt(field_name: str) -> str:
     return prompts.get(field_name, "Trade-Republic-Status waehlen:")
 
 
+def format_existing_taxonomy_for_prompt(
+    categories: list[str],
+    subcategories_by_category: dict[str, list[str]],
+) -> str:
+    lines: list[str] = []
+    for category in categories:
+        subcategories = subcategories_by_category.get(category, [])
+        if subcategories:
+            lines.append(f"- {category}: {', '.join(subcategories)}")
+        else:
+            lines.append(f"- {category}")
+    return "\n".join(lines)
+
+
+def build_stock_entry_gemini_prompt(
+    lookup_type: str,
+    lookup_value: str,
+    categories: list[str],
+    subcategories_by_category: dict[str, list[str]],
+) -> str:
+    lookup_labels = {
+        "name": "Name",
+        "wkn": "WKN",
+        "isin": "ISIN",
+    }
+    lookup_label = lookup_labels.get(lookup_type, lookup_type.upper())
+    fields = BASE_REQUIRED_STOCK_FIELDS + TRADE_REPUBLIC_FIELD_NAMES + OPTIONAL_STOCK_FIELDS
+    taxonomy_text = format_existing_taxonomy_for_prompt(categories, subcategories_by_category)
+    return f"""
+Du bist ein praeziser Datenassistent fuer eine Market-Brief-Aktienliste.
+Ermittle fuer das folgende Wertpapier alle Daten fuer einen neuen stockCategories-Index-Eintrag.
+
+Suchschluessel:
+- Typ: {lookup_label}
+- Wert: {lookup_value}
+
+Gib ausschliesslich ein gueltiges JSON-Objekt aus, ohne Markdown und ohne Erklaertext.
+Das JSON muss exakt diese String-Felder enthalten:
+{", ".join(fields)}
+
+Bereits vorhandene Kategorien und Subkategorien:
+{taxonomy_text}
+
+Regeln:
+- `category` und `subcategory` sollen fachlich sinnvoll sein.
+- Verwende bevorzugt exakt eine bereits vorhandene `category`.
+- Verwende bevorzugt exakt eine bereits vorhandene `subcategory`, die zu dieser `category` gehoert.
+- Lege nur dann eine neue `category` oder `subcategory` nahe, wenn wirklich keine bestehende Option fachlich passt.
+- `name`, `ticker`, `isin`, `wkn` muessen moeglichst exakt sein.
+- `trade_republic_aktie` und `trade_republic_derivate` duerfen nur `ja`, `nein` oder `unbekannt` sein. Wenn unsicher: `unbekannt`.
+- `ticker_usa`: nur wenn es einen passenden US-Ticker an NASDAQ/NYSE gibt, bevorzugt NASDAQ wenn dort gelistet.
+- `ticker_eu`: nur wenn ein passender Ticker an der Lang & Schwarz Exchange verfuegbar ist.
+- `ticker_apac`: nur wenn ein passender Ticker an Japan Exchange Group / Tokio verfuegbar ist.
+- Nicht vorhandene oder unsichere optionale Werte als leeren String ausgeben.
+- Keine Fakten erfinden. Wenn unsicher, verwende leere Strings oder `unbekannt`.
+- `description` kurz auf Deutsch, maximal ein Satz.
+""".strip()
+
+
+def parse_gemini_stock_entry_response(text: str) -> dict[str, str]:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.strip("`").strip()
+        if cleaned.casefold().startswith("json"):
+            cleaned = cleaned[4:].strip()
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start >= 0 and end > start:
+        cleaned = cleaned[start : end + 1]
+
+    payload = json.loads(cleaned)
+    if not isinstance(payload, dict):
+        raise RuntimeError("Gemini-Antwort ist kein JSON-Objekt.")
+
+    result: dict[str, str] = {}
+    for field in BASE_REQUIRED_STOCK_FIELDS + TRADE_REPUBLIC_FIELD_NAMES + OPTIONAL_STOCK_FIELDS:
+        result[field] = normalize_stock_value(str(payload.get(field, "") or ""), field)
+    return result
+
+
+def generate_stock_entry_with_gemini(
+    lookup_type: str,
+    lookup_value: str,
+    api_key: str,
+    model: str,
+    categories: list[str],
+    subcategories_by_category: dict[str, list[str]],
+) -> dict[str, str]:
+    requests = load_requests()
+    prompt = build_stock_entry_gemini_prompt(lookup_type, lookup_value, categories, subcategories_by_category)
+    payload = call_gemini(
+        requests=requests,
+        prompt=prompt,
+        api_key=api_key,
+        model=model,
+        max_output_tokens=1400,
+    )
+    text, _ = extract_response_text(payload)
+    return parse_gemini_stock_entry_response(text)
+
+
+def search_yfinance_symbols(query: str) -> list[dict[str, str]]:
+    normalized_query = str(query or "").strip()
+    if not normalized_query:
+        return []
+
+    code = (
+        "import json, sys\n"
+        "import yfinance as yf\n"
+        "query = sys.argv[1]\n"
+        "results = []\n"
+        "try:\n"
+        "    search = yf.Search(query, max_results=8)\n"
+        "    quotes = getattr(search, 'quotes', []) or []\n"
+        "    for item in quotes:\n"
+        "        if not isinstance(item, dict):\n"
+        "            continue\n"
+        "        symbol = str(item.get('symbol') or '').strip()\n"
+        "        if not symbol:\n"
+        "            continue\n"
+        "        results.append({\n"
+        "            'symbol': symbol,\n"
+        "            'exchange': str(item.get('exchange') or item.get('fullExchangeName') or '').strip(),\n"
+        "            'name': str(item.get('shortname') or item.get('longname') or '').strip(),\n"
+        "            'type': str(item.get('quoteType') or '').strip(),\n"
+        "        })\n"
+        "except Exception:\n"
+        "    pass\n"
+        "print(json.dumps({'results': results}))\n"
+    )
+    payload = run_isolated_python_json(code, normalized_query)
+    results = payload.get("results", [])
+    return [item for item in results if isinstance(item, dict)][:8]
+
+
+def run_isolated_python_json(code: str, *args: str) -> dict[str, object]:
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", code, *args],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
+            check=False,
+        )
+    except Exception:
+        return {}
+
+    stdout = (result.stdout or "").strip()
+    if not stdout:
+        return {}
+
+    try:
+        parsed = json.loads(stdout)
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def score_region_symbol_candidate(
+    candidate: dict[str, str],
+    region: str,
+    reference_tokens: set[str],
+) -> int:
+    symbol = str(candidate.get("symbol", "")).strip().upper()
+    exchange = str(candidate.get("exchange", "")).strip().upper()
+    name = str(candidate.get("name", "")).strip().upper()
+    quote_type = str(candidate.get("type", "")).strip().upper()
+    score = 0
+
+    if quote_type in {"EQUITY", "ETF"}:
+        score += 20
+
+    region_suffixes = {
+        "usa": ("",),
+        "eu": (".DE", ".AS", ".PA", ".MI", ".SW", ".L", ".BR", ".VI", ".HE", ".ST", ".CO", ".OL"),
+        "apac": (".T", ".HK", ".AX", ".SI", ".KS", ".KQ", ".TW"),
+    }
+    region_exchange_tokens = {
+        "usa": ("NASDAQ", "NYSE", "NYSEARCA", "AMEX"),
+        "eu": ("XETRA", "FRANKFURT", "TRADEGATE", "EURONEXT", "LONDON", "MILAN", "SIX", "BRUSSELS", "VIENNA"),
+        "apac": ("TOKYO", "JPX", "JAPAN", "HONG KONG", "ASX", "SINGAPORE", "KOREA", "TAIWAN"),
+    }
+
+    if region == "usa":
+        if "." not in symbol:
+            score += 35
+    else:
+        if symbol.endswith(region_suffixes[region]):
+            score += 40
+
+    if any(token in exchange for token in region_exchange_tokens[region]):
+        score += 30
+
+    for token in reference_tokens:
+        if token and token in symbol:
+            score += 12
+        if token and token in name:
+            score += 8
+
+    return score
+
+
+def build_stock_reference_tokens(payload: dict[str, str], lookup_value: str) -> set[str]:
+    raw_values = [
+        lookup_value,
+        payload.get("name", ""),
+        payload.get("ticker", ""),
+        payload.get("isin", ""),
+        payload.get("wkn", ""),
+    ]
+    tokens: set[str] = set()
+    for raw in raw_values:
+        cleaned = str(raw or "").strip().upper()
+        if not cleaned:
+            continue
+        tokens.add(cleaned)
+        for part in cleaned.replace(".", " ").replace("-", " ").split():
+            if len(part) >= 2:
+                tokens.add(part)
+    return tokens
+
+
+def resolve_valid_yfinance_market_ticker(
+    payload: dict[str, str],
+    region: str,
+    lookup_value: str,
+) -> str:
+    reference_tokens = build_stock_reference_tokens(payload, lookup_value)
+    queries = [
+        payload.get(f"ticker_{region}", ""),
+        payload.get("ticker", ""),
+        payload.get("isin", ""),
+        payload.get("wkn", ""),
+        payload.get("name", ""),
+        lookup_value,
+    ]
+    seen_symbols: set[str] = set()
+    ranked_candidates: list[tuple[int, str]] = []
+
+    for query in queries:
+        for candidate in search_yfinance_symbols(str(query or "")):
+            symbol = normalize_stock_value(str(candidate.get("symbol", "")), "ticker")
+            if not symbol or symbol in seen_symbols:
+                continue
+            seen_symbols.add(symbol)
+            score = score_region_symbol_candidate(candidate, region, reference_tokens)
+            if score <= 0:
+                continue
+            ranked_candidates.append((score, symbol))
+
+    ranked_candidates.sort(key=lambda item: (-item[0], item[1]))
+    for score, symbol in ranked_candidates[:3]:
+        quote = fetch_quote_data(symbol)
+        if quote.get("price") is not None or quote.get("previous_close") is not None:
+            return symbol
+    return ""
+
+
+def enrich_payload_with_valid_yfinance_tickers(payload: dict[str, str], lookup_value: str) -> dict[str, str]:
+    enriched = {key: normalize_stock_value(str(value), key) for key, value in payload.items()}
+    enriched["ticker_usa"] = resolve_valid_yfinance_market_ticker(enriched, "usa", lookup_value)
+    enriched["ticker_eu"] = resolve_valid_yfinance_market_ticker(enriched, "eu", lookup_value)
+    enriched["ticker_apac"] = resolve_valid_yfinance_market_ticker(enriched, "apac", lookup_value)
+    return enriched
+
+
+def pick_best_existing_value(candidate: str, options: list[str]) -> str:
+    normalized_candidate = str(candidate or "").strip()
+    if not normalized_candidate:
+        return ""
+    for option in options:
+        if normalized_candidate.casefold() == option.casefold():
+            return option
+    matches = difflib.get_close_matches(normalized_candidate, options, n=1, cutoff=0.6)
+    return matches[0] if matches else ""
+
+
+def align_payload_to_existing_taxonomy(
+    payload: dict[str, str],
+    categories: list[str],
+    subcategories_by_category: dict[str, list[str]],
+) -> dict[str, str]:
+    aligned = {key: normalize_stock_value(str(value), key) for key, value in payload.items()}
+    chosen_category = pick_best_existing_value(aligned.get("category", ""), categories)
+    if chosen_category:
+        aligned["category"] = chosen_category
+
+    current_category = aligned.get("category", "")
+    category_options = subcategories_by_category.get(current_category, [])
+    chosen_subcategory = pick_best_existing_value(aligned.get("subcategory", ""), category_options)
+    if chosen_subcategory:
+        aligned["subcategory"] = chosen_subcategory
+        return aligned
+
+    for category in categories:
+        options = subcategories_by_category.get(category, [])
+        chosen_subcategory = pick_best_existing_value(aligned.get("subcategory", ""), options)
+        if chosen_subcategory:
+            aligned["category"] = category
+            aligned["subcategory"] = chosen_subcategory
+            return aligned
+
+    return aligned
+
+
 def build_time_choice_keyboard(prefix: str, mode: str = "from") -> InlineKeyboardMarkup:
     if mode == "to":
         time_values = [f"h:{hour:02d}" for hour in range(1, 24)]
@@ -1964,6 +2303,8 @@ def cleanup_listenpflege_context(context: ContextTypes.DEFAULT_TYPE) -> None:
         "list_selected_subcategory",
         "list_entry_options",
         "list_add_payload",
+        "list_add_mode",
+        "list_add_auto_lookup_type",
         "list_add_category_mode",
         "list_add_subcategory_mode",
         "list_edit_entry",
@@ -2693,15 +3034,12 @@ async def listenpflege_action(update: Update, context: ContextTypes.DEFAULT_TYPE
     context.user_data["list_action"] = action
 
     if action == "add":
-        categories = context.user_data.get("list_categories", [])
-        context.user_data["list_add_category_mode"] = "select"
-        context.user_data["list_add_subcategory_mode"] = "select"
-        await query.edit_message_text(
-            "Kategorie waehlen oder neu anlegen:",
-            reply_markup=build_list_add_category_keyboard(categories),
-        )
         context.user_data["list_add_payload"] = {}
-        return STATE_LIST_ADD_CATEGORY
+        await query.edit_message_text(
+            "Eintrag hinzufuegen: Wie sollen die Daten erfasst werden?",
+            reply_markup=build_list_add_mode_keyboard(),
+        )
+        return STATE_LIST_ADD_MODE
 
     if action in {"edit", "delete"}:
         categories: list[str] = context.user_data.get("list_categories", [])
@@ -2721,6 +3059,164 @@ async def listenpflege_action(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.edit_message_text("Listenpflege abgebrochen.")
     cleanup_listenpflege_context(context)
     return ConversationHandler.END
+
+
+async def listenpflege_add_mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    if query is None:
+        return STATE_LIST_ADD_MODE
+    await query.answer()
+    action = query.data.removeprefix(CALLBACK_PREFIX_LIST_ADD_MODE)
+
+    if action == "cancel":
+        await query.edit_message_text("Listenpflege abgebrochen.")
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if action == "back":
+        await query.edit_message_text(
+            "Listenpflege fuer config/stock_categories/stock_categories.xml\nAktion waehlen:",
+            reply_markup=build_option_keyboard(
+                [
+                    ("Eintrag hinzufuegen", f"{CALLBACK_PREFIX_LIST_ACTION}add"),
+                    ("Eintrag bearbeiten", f"{CALLBACK_PREFIX_LIST_ACTION}edit"),
+                    ("Eintrag loeschen", f"{CALLBACK_PREFIX_LIST_ACTION}delete"),
+                    ("Abbrechen", f"{CALLBACK_PREFIX_LIST_ACTION}cancel"),
+                ]
+            ),
+        )
+        return STATE_LIST_ACTION
+    if action == "manual":
+        categories = context.user_data.get("list_categories", [])
+        context.user_data["list_add_mode"] = "manual"
+        context.user_data["list_add_category_mode"] = "select"
+        context.user_data["list_add_subcategory_mode"] = "select"
+        context.user_data["list_add_payload"] = {}
+        await query.edit_message_text(
+            "Kategorie waehlen oder neu anlegen:",
+            reply_markup=build_list_add_category_keyboard(categories),
+        )
+        return STATE_LIST_ADD_CATEGORY
+    if action == "auto":
+        context.user_data["list_add_mode"] = "auto"
+        context.user_data["list_add_payload"] = {}
+        await query.edit_message_text(
+            "Automatische Anlage: Suchart waehlen:",
+            reply_markup=build_list_add_auto_lookup_keyboard(),
+        )
+        return STATE_LIST_ADD_AUTO_LOOKUP_TYPE
+
+    await query.edit_message_text("Ungueltige Auswahl. Bitte /listenpflege neu starten.")
+    cleanup_listenpflege_context(context)
+    return ConversationHandler.END
+
+
+async def listenpflege_add_auto_lookup_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    if query is None:
+        return STATE_LIST_ADD_AUTO_LOOKUP_TYPE
+    await query.answer()
+    action = query.data.removeprefix(CALLBACK_PREFIX_LIST_ADD_AUTO)
+
+    if action == "cancel":
+        await query.edit_message_text("Listenpflege abgebrochen.")
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if action == "back":
+        await query.edit_message_text(
+            "Eintrag hinzufuegen: Wie sollen die Daten erfasst werden?",
+            reply_markup=build_list_add_mode_keyboard(),
+        )
+        return STATE_LIST_ADD_MODE
+    if action not in {"name", "wkn", "isin"}:
+        await query.edit_message_text("Ungueltige Auswahl. Bitte /listenpflege neu starten.")
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+
+    context.user_data["list_add_auto_lookup_type"] = action
+    labels = {"name": "Name", "wkn": "WKN", "isin": "ISIN"}
+    prompt = f"{labels[action]} eingeben:"
+    await query.edit_message_text(prompt)
+    if query.message is not None:
+        await query.message.reply_text(prompt, reply_markup=build_text_navigation_keyboard())
+    return STATE_LIST_ADD_AUTO_LOOKUP_VALUE
+
+
+async def listenpflege_add_auto_lookup_value(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    runtime: BotRuntime = context.application.bot_data["runtime"]
+    message = update.effective_message
+    if message is None:
+        return STATE_LIST_ADD_AUTO_LOOKUP_VALUE
+    nav = listenpflege_text_nav_choice(message)
+    if nav == "cancel":
+        await message.reply_text("Listenpflege abgebrochen.", reply_markup=ReplyKeyboardRemove())
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if nav == "back":
+        await message.reply_text("Zurueck zur Suchart.", reply_markup=ReplyKeyboardRemove())
+        await message.reply_text("Automatische Anlage: Suchart waehlen:", reply_markup=build_list_add_auto_lookup_keyboard())
+        return STATE_LIST_ADD_AUTO_LOOKUP_TYPE
+
+    lookup_type = str(context.user_data.get("list_add_auto_lookup_type", "")).strip()
+    lookup_value = (message.text or "").strip()
+    if lookup_type not in {"name", "wkn", "isin"}:
+        await message.reply_text("Bearbeitungskontext fehlt. Bitte /listenpflege neu starten.", reply_markup=ReplyKeyboardRemove())
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+    if not lookup_value:
+        await message.reply_text("Eingabe darf nicht leer sein.", reply_markup=build_text_navigation_keyboard())
+        return STATE_LIST_ADD_AUTO_LOOKUP_VALUE
+
+    categories: list[str] = context.user_data.get("list_categories", [])
+    subcategories_by_category: dict[str, list[str]] = context.user_data.get("list_subcategories", {})
+
+    api_key = resolve_api_key("")
+    if not api_key:
+        await message.reply_text(
+            "Gemini API Key fehlt. Trage `gemini_api_key` in config/app_config.json ein.",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+
+    status_message = await message.reply_text("Suche Daten mit Gemini ...", reply_markup=ReplyKeyboardRemove())
+
+    async def finalize_status(text: str, reply_markup=None):
+        try:
+            return await status_message.edit_text(text, reply_markup=reply_markup)
+        except Exception:
+            return await message.reply_text(text, reply_markup=reply_markup)
+
+    try:
+        payload = await run_blocking(
+            generate_stock_entry_with_gemini,
+            lookup_type,
+            lookup_value,
+            api_key,
+            runtime.gemini_model,
+            categories,
+            subcategories_by_category,
+        )
+        payload = await run_blocking(align_payload_to_existing_taxonomy, payload, categories, subcategories_by_category)
+        await finalize_status("Gemini-Daten gefunden. Pruefe passende yfinance-Ticker ...")
+        payload = await run_blocking(enrich_payload_with_valid_yfinance_tickers, payload, lookup_value)
+        validate_stock_entry_payload(payload, await run_blocking(collect_stock_entries))
+    except Exception as exc:
+        await finalize_status(f"Automatische Anlage fehlgeschlagen: {exc}\nBitte /listenpflege neu starten.")
+        cleanup_listenpflege_context(context)
+        return ConversationHandler.END
+
+    context.user_data["list_add_payload"] = payload
+    await finalize_status(
+        "Gemini-Vorschlag pruefen und speichern?\n\n" + format_stock_entry(payload),
+        reply_markup=build_option_keyboard(
+            [
+                ("Speichern", f"{CALLBACK_PREFIX_LIST_CONFIRM}add_save"),
+                ("Zurueck", f"{CALLBACK_PREFIX_LIST_CONFIRM}auto_back"),
+                ("Abbrechen", f"{CALLBACK_PREFIX_LIST_CONFIRM}cancel"),
+            ]
+        ),
+    )
+    return STATE_LIST_ADD_CONFIRM
 
 
 async def listenpflege_add_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -3152,6 +3648,15 @@ async def listenpflege_add_confirm(update: Update, context: ContextTypes.DEFAULT
         return STATE_LIST_ADD_CONFIRM
     await query.answer()
     action = query.data.removeprefix(CALLBACK_PREFIX_LIST_CONFIRM)
+    if action == "auto_back":
+        context.user_data.pop("list_add_payload", None)
+        await query.edit_message_text(
+            "Automatische Anlage: Suchart waehlen:",
+            reply_markup=build_list_add_auto_lookup_keyboard(),
+        )
+        if query.message is not None:
+            await query.message.reply_text("Zurueck zur Suchart.", reply_markup=ReplyKeyboardRemove())
+        return STATE_LIST_ADD_AUTO_LOOKUP_TYPE
     if action == "add_back":
         payload = context.user_data.get("list_add_payload", {})
         await query.edit_message_text(
@@ -3577,6 +4082,15 @@ def build_application() -> Application:
                 STATE_LIST_ACTION: [
                     CallbackQueryHandler(listenpflege_action, pattern=f"^{CALLBACK_PREFIX_LIST_ACTION}")
                 ],
+                STATE_LIST_ADD_MODE: [
+                    CallbackQueryHandler(listenpflege_add_mode, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_MODE}")
+                ],
+                STATE_LIST_ADD_AUTO_LOOKUP_TYPE: [
+                    CallbackQueryHandler(listenpflege_add_auto_lookup_type, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_AUTO}")
+                ],
+                STATE_LIST_ADD_AUTO_LOOKUP_VALUE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_auto_lookup_value)
+                ],
                 STATE_LIST_ADD_CATEGORY: [
                     CallbackQueryHandler(listenpflege_add_category, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_CATEGORY}"),
                     MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_category),
@@ -3709,6 +4223,15 @@ def build_application() -> Application:
             states={
                 STATE_LIST_ACTION: [
                     CallbackQueryHandler(listenpflege_action, pattern=f"^{CALLBACK_PREFIX_LIST_ACTION}")
+                ],
+                STATE_LIST_ADD_MODE: [
+                    CallbackQueryHandler(listenpflege_add_mode, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_MODE}")
+                ],
+                STATE_LIST_ADD_AUTO_LOOKUP_TYPE: [
+                    CallbackQueryHandler(listenpflege_add_auto_lookup_type, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_AUTO}")
+                ],
+                STATE_LIST_ADD_AUTO_LOOKUP_VALUE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_auto_lookup_value)
                 ],
                 STATE_LIST_ADD_CATEGORY: [
                     CallbackQueryHandler(listenpflege_add_category, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_CATEGORY}"),

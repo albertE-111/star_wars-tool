@@ -22,6 +22,9 @@ Die alten Direktbefehle wie `/marketbrief <query>`, `/marketbrief_start`, `/auto
 
 - `/listenpflege` fuehrt beim Hinzufuegen zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`, `trade_republic_aktie`, `trade_republic_derivate`
 - `/listenpflege` bietet danach per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description`
+- Beim Hinzufuegen kann zwischen `Manuell` und `Automatisch` gewaehlt werden.
+- `Manuell` nutzt den bisherigen Eingabeablauf.
+- `Automatisch` fragt ab, ob die Suche per Name, WKN oder ISIN laufen soll, und erzeugt per Gemini einen Vorschlag fuer alle Pflichtfelder und vorhandene Ticker USA/EU/APAC.
 - `python price_monitor.py`: lokale Live-Preisregeln aus `config/live_settings.xml` pruefen
 - `/cancel`: laufende Konversation abbrechen
 
