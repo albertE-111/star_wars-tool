@@ -1,32 +1,28 @@
 # Kommandos und CLI
 
-## Telegram-Kommandos des Haupt-Bots
+## Telegram-Menue des Haupt-Bots
 
-Aus dem Code ersichtlich sind unter anderem folgende Commands:
+Im Telegram-Bot-Menue des Haupt-Bots ist ein zentraler Command sichtbar:
 
-### Marktbriefing
+- `/marketbrief_menu`: Market-Brief-Menue oeffnen
 
-- `/marketbrief <query>`: einzelnen Market Brief fuer Name, Ticker, ISIN oder WKN abrufen
-- `/marketbrief_start`: interaktiven Batch-Workflow starten
+Nach dem Klick erscheinen Buttons fuer:
 
-### Auto Market Brief
+- `Einzelanalyse`: Name, Ticker, ISIN oder WKN eingeben und einzelnen Market Brief erstellen
+- `Batch Market Brief`: interaktiven Batch-Workflow starten
+- `Auto-Brief`: Auto-Market-Brief Status und Konfiguration per Buttons bearbeiten
+- `Listenpflege`: XML-Instrumentenliste pflegen
+- `Support-Bot`: Support-Bot Status und Steuerung aus dem Haupt-Bot heraus
+- `Kategorien`: Kategorien und Subkategorien anzeigen
+- `Bot testen`: Ping-Test ausfuehren
 
-- `/autobrief`: Status und Konfiguration anzeigen
-- `/autobrief_start`: interaktive Konfiguration starten
-- `/autobrief_next`: naechsten geplanten Lauf anzeigen
-- `/autobrief_set <start> <end> <interval_min> [news on|off]`: Zeitfenster und Intervall direkt setzen
-- `/autobrief_filter [category] [subcategory]`: Filter setzen oder loeschen
-- `/autobrief_on`: Automatik aktivieren
-- `/autobrief_off`: Automatik deaktivieren
+Die alten Direktbefehle wie `/marketbrief <query>`, `/marketbrief_start`, `/autobrief`, `/listenpflege` und `/supportbot` bleiben als Fallback im Code nutzbar, werden aber nicht mehr im Telegram-Command-Menue angezeigt.
 
 ### Support und Verwaltung
 
-- `/supportbot`: Status und Steuerung des Support-Bots aus dem Haupt-Bot heraus
-- `/listenpflege`: XML-Instrumentenliste pflegen
 - `/listenpflege` fuehrt beim Hinzufuegen zuerst durch die Pflichtfelder `category`, `subcategory`, `name`, `ticker`, `isin`, `wkn`, `trade_republic_aktie`, `trade_republic_derivate`
 - `/listenpflege` bietet danach per Button-Menue optionale Zusatzfelder wie `ticker_usa`, `ticker_eu`, `ticker_apac`, `land`, `tag` und `description`
-- `python price_monitor.py`: lokale Live-Preisregeln aus `live_monitoring` pruefen
-- `/start`: Bot-Startnachricht und Uebersicht
+- `python price_monitor.py`: lokale Live-Preisregeln aus `config/live_settings.xml` pruefen
 - `/cancel`: laufende Konversation abbrechen
 
 ### Zertifikate
@@ -65,7 +61,7 @@ Nach dem Klick erscheinen Buttons fuer die eigentlichen Aktionen:
 - `Diesen Chat speichern`: aktuellen Chat als Ziel fuer Preis-Trigger speichern
 - `Bot testen`: Ping-Test ausfuehren
 
-Die Regelbearbeitung kann Monitoring ein- oder ausschalten, Zielpreis, Bedingung und `interval_min` setzen sowie den aktuellen Kurs abfragen.
+Die Regelbearbeitung kann Monitoring ein- oder ausschalten, Zielpreis, Bedingung und `interval_min` setzen sowie den aktuellen Kurs abfragen. Gespeichert wird in `config/live_settings.xml`, nicht in `stock_categories.xml`.
 
 ## Wichtige lokale CLI-Skripte
 

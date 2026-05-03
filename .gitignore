@@ -19,6 +19,7 @@ venv/
 .env
 .env.*
 config/app_config.json
+config/live_settings.xml
 
 # Runtime state, locks, logs
 *.log

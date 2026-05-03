@@ -146,7 +146,7 @@ Ziel-Chat fuer Preis-Trigger. Der Wert kann durch `/start` im Live-Monitoring-Bo
 
 ### `poll_seconds`
 
-Takt, in dem der Live-Monitoring-Bot die XML-Regeln prueft. Der eigentliche Kursabruf pro Wert wird zusaetzlich durch `live_monitoring.interval_min` im XML-Eintrag begrenzt.
+Takt, in dem der Live-Monitoring-Bot die Regeln aus `config/live_settings.xml` prueft. Der eigentliche Kursabruf pro Wert wird zusaetzlich durch `interval_min` in der Live-Settings-Datei begrenzt.
 
 ## Pflichtfelder fuer einen funktionierenden Betrieb
 
@@ -163,6 +163,7 @@ Praktisch unverzichtbar sind:
 ## Sicherheits- und Betriebsregeln
 
 - `config/app_config.json` enthaelt Secrets und gehoert nicht in ein oeffentliches Repository.
+- `config/live_settings.xml` enthaelt private Preis-Alarme und gehoert ebenfalls nicht in Git.
 - Nach versehentlicher Offenlegung muessen Tokens und API-Keys rotiert werden.
 - Aenderungen an `auto_market_brief` koennen direkt das Laufzeitverhalten des Haupt-Bots aendern.
 - Laufzeitaenderungen ueber den Support-Bot, insbesondere an `auto_market_brief.chat_id`, werden in `config/app_config.json` persistiert und bleiben nach einem Neustart erhalten.

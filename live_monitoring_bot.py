@@ -396,7 +396,7 @@ async def update_selected_monitoring_config(
     if not isinstance(selection, dict):
         raise RuntimeError("Bearbeitungskontext fehlt. Bitte /live_monitoring neu starten.")
 
-    backup_path, config = await asyncio.to_thread(
+    settings_path, config = await asyncio.to_thread(
         update_live_monitoring_config,
         str(selection.get("category", "")),
         str(selection.get("subcategory", "")),
@@ -408,7 +408,7 @@ async def update_selected_monitoring_config(
         str(context.user_data.get("live_selected_category", "")),
         str(context.user_data.get("live_selected_subcategory", "")),
     )
-    return backup_path, config, refresh_selected_monitor_entry(context)
+    return settings_path, config, refresh_selected_monitor_entry(context)
 
 
 async def show_monitor_menu(
@@ -748,13 +748,13 @@ async def main_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
             return await show_monitor_menu(update, context)
 
         try:
-            backup_path, _, _ = await update_selected_monitoring_config(context, {"enabled": False})
+            settings_path, _, _ = await update_selected_monitoring_config(context, {"enabled": False})
         except Exception as exc:
             return await show_active_rules_menu(query, context, f"Ausschalten fehlgeschlagen: {exc}")
         return await show_active_rules_menu(
             query,
             context,
-            f"{selected.get('name', 'Regel')} ausgeschaltet.\nBackup: {backup_path.name}",
+            f"{selected.get('name', 'Regel')} ausgeschaltet.\nGespeichert in: {settings_path.name}",
         )
 
     if action == "ping":
@@ -999,11 +999,11 @@ async def monitoring_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             return STATE_LIVE_TARGET
 
         try:
-            backup_path, _, _ = await update_selected_monitoring_config(context, {"enabled": enable})
+            settings_path, _, _ = await update_selected_monitoring_config(context, {"enabled": enable})
         except Exception as exc:
             return await show_monitor_update_error(update, context, exc)
         message = "Monitoring eingeschaltet." if enable else "Monitoring ausgeschaltet."
-        return await show_monitor_menu(update, context, action_message=f"{message}\nBackup: {backup_path.name}")
+        return await show_monitor_menu(update, context, action_message=f"{message}\nGespeichert in: {settings_path.name}")
 
     if action == "target":
         context.user_data["live_enable_after_target"] = False
@@ -1079,11 +1079,11 @@ async def monitoring_target_value(update: Update, context: ContextTypes.DEFAULT_
         updates["enabled"] = True
 
     try:
-        backup_path, _, _ = await update_selected_monitoring_config(context, updates)
+        settings_path, _, _ = await update_selected_monitoring_config(context, updates)
     except Exception as exc:
         return await show_monitor_update_error(update, context, exc)
     await message.reply_text("Zielpreis gespeichert.", reply_markup=ReplyKeyboardRemove())
-    action_message = f"Zielpreis gespeichert.\nBackup: {backup_path.name}"
+    action_message = f"Zielpreis gespeichert.\nGespeichert in: {settings_path.name}"
     if enable_after_target:
         action_message = f"Monitoring eingeschaltet.\n{action_message}"
     return await show_monitor_menu(update, context, action_message=action_message)
@@ -1112,10 +1112,10 @@ async def monitoring_condition(update: Update, context: ContextTypes.DEFAULT_TYP
         return ConversationHandler.END
 
     try:
-        backup_path, _, _ = await update_selected_monitoring_config(context, {"condition": action})
+        settings_path, _, _ = await update_selected_monitoring_config(context, {"condition": action})
     except Exception as exc:
         return await show_monitor_update_error(update, context, exc)
-    return await show_monitor_menu(update, context, action_message=f"Bedingung gespeichert.\nBackup: {backup_path.name}")
+    return await show_monitor_menu(update, context, action_message=f"Bedingung gespeichert.\nGespeichert in: {settings_path.name}")
 
 
 async def monitoring_interval(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -1150,10 +1150,10 @@ async def monitoring_interval(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     interval = action.removeprefix("set:")
     try:
-        backup_path, _, _ = await update_selected_monitoring_config(context, {"interval_min": interval})
+        settings_path, _, _ = await update_selected_monitoring_config(context, {"interval_min": interval})
     except Exception as exc:
         return await show_monitor_update_error(update, context, exc)
-    return await show_monitor_menu(update, context, action_message=f"Intervall gespeichert.\nBackup: {backup_path.name}")
+    return await show_monitor_menu(update, context, action_message=f"Intervall gespeichert.\nGespeichert in: {settings_path.name}")
 
 
 async def monitoring_interval_custom(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -1185,11 +1185,11 @@ async def monitoring_interval_custom(update: Update, context: ContextTypes.DEFAU
         return STATE_LIVE_INTERVAL_CUSTOM
 
     try:
-        backup_path, _, _ = await update_selected_monitoring_config(context, {"interval_min": interval})
+        settings_path, _, _ = await update_selected_monitoring_config(context, {"interval_min": interval})
     except Exception as exc:
         return await show_monitor_update_error(update, context, exc)
     await message.reply_text("Intervall gespeichert.", reply_markup=ReplyKeyboardRemove())
-    return await show_monitor_menu(update, context, action_message=f"Intervall gespeichert.\nBackup: {backup_path.name}")
+    return await show_monitor_menu(update, context, action_message=f"Intervall gespeichert.\nGespeichert in: {settings_path.name}")
 
 
 async def monitoring_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

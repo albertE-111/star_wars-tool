@@ -50,6 +50,11 @@ Aktive lokale Konfiguration. Enthaelt Tokens, IDs und Bot-Einstellungen.
 
 Fachliche Instrumentenliste. Sie ist fuer Market Briefs, Batch-Laeufe und Listenpflege zentral.
 
+### `config/live_settings.xml`
+
+Lokale Preis-Alarme fuer den Live-Monitoring-Bot und `price_monitor.py`.
+Diese Datei wird nicht versioniert und schuetzt private Alarmwerte vor Git-Updates.
+
 ## Verzeichnis `market_brief_results/`
 
 Standardziel fuer Batch-Ausgaben und weitere Analyseergebnisse. `batch_market_brief.py` erzeugt darin monatsbasierte Unterordner.
@@ -83,6 +88,7 @@ Im Regelfall versionierbar:
 Normalerweise lokal und nicht fuer ein oeffentliches Repository gedacht:
 
 - `config/app_config.json`
+- `config/live_settings.xml`
 - Lock-Dateien
 - Heartbeat-Dateien
 - Log-Dateien

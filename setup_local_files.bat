@@ -46,6 +46,14 @@ if not exist "config\app_config.json" (
 ) else (
     echo config\app_config.json existiert bereits.
 )
+if not exist "config\live_settings.xml" (
+    > "config\live_settings.xml" echo ^<?xml version='1.0' encoding='utf-8'?^>
+    >> "config\live_settings.xml" echo ^<liveSettings^>
+    >> "config\live_settings.xml" echo ^</liveSettings^>
+    echo config\live_settings.xml wurde erstellt.
+) else (
+    echo config\live_settings.xml existiert bereits.
+)
 
 echo [3/6] Erstelle lokale Arbeitsordner...
 if not exist "market_brief_results" mkdir "market_brief_results"

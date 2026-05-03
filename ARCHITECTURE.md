@@ -26,7 +26,7 @@ Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben, einen 
 
 - `live_monitoring_bot.py`
   Separater Telegram-Bot fuer Live-Preisalarme.
-  Liest `live_monitoring`-Regeln aus `stock_categories.xml`, ruft Preise ueber yfinance ab und sendet Trigger an den konfigurierten Zielchat.
+  Liest Preisregeln aus `config/live_settings.xml`, ruft Preise ueber yfinance ab und sendet Trigger an den konfigurierten Zielchat.
 
 - `bot_monitoring.py`
   Gemeinsame Laufzeit- und Monitoring-Basis.
@@ -63,6 +63,11 @@ Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben, einen 
   Die Datei wird auch interaktiv ueber `/listenpflege` gepflegt. Der Add-Flow fragt zuerst
   Pflichtfelder ab und bietet danach per Button-Menue optionale Zusatzfelder an.
 
+- `config/live_settings.xml`
+  Lokale Live-Preisalarme fuer `price_monitor.py` und `live_monitoring_bot.py`.
+  Diese Datei enthaelt private Alarmwerte wie `enabled`, `target_price`, `condition` und `interval_min`
+  und ist nicht fuer Git gedacht.
+
 - `config/app_config.json`
   Laufzeitkonfiguration fuer Tokens, Zugriffsrechte, Auto-Brief-Einstellungen und Support-Bot-Werte.
 
@@ -90,12 +95,6 @@ Das Projekt betreibt einen Telegram-Haupt-Bot fuer Market-Brief-Ausgaben, einen 
         <wkn>...</wkn>
         <trade_republic_aktie>ja|nein|unbekannt</trade_republic_aktie>
         <trade_republic_derivate>ja|nein|unbekannt</trade_republic_derivate>
-        <live_monitoring>
-          <enabled>false</enabled>
-          <target_price></target_price>
-          <condition>above|below</condition>
-          <interval_min>5</interval_min>
-        </live_monitoring>
         <land>...</land>
         <tag>...</tag>
         <description>...</description>
@@ -122,15 +121,14 @@ Verwendung der wichtigsten Felder:
   Pflichtfelder fuer die Trade-Republic-Handelbarkeit als Aktie bzw. Derivat.
   Erlaubte Werte sind `ja`, `nein` und `unbekannt`.
 
-- `live_monitoring`
-  Optional aktivierbare Preisregel fuer `price_monitor.py`.
-  `condition` ist `above` oder `below`; `interval_min` steuert den Abrufabstand.
-
 - `land`
   Hilft bei automatischer Marktzuordnung vorhandener Primär-Ticker.
 
 - `tag`, `description`
   Fachliche Zusatzinformationen fuer Einordnung, Pflege und spaetere Erweiterungen.
+
+Live-Preisregeln liegen nicht in `stock_categories.xml`, sondern lokal in `config/live_settings.xml`.
+Die Zuordnung erfolgt ueber Kategorie, Subkategorie und Query/Ticker des Instruments.
 
 ## Wichtige Datenfluesse
 

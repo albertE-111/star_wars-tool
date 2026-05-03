@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
+from live_settings import LIVE_SETTINGS_PATH, apply_price_alert_settings, upsert_price_alert
 from market_brief import XML_PATH, load_entries
 
 
@@ -287,8 +288,10 @@ def find_monitor_entry_node(
 
 
 def read_live_monitoring_node_config(index_node: ElementTree.Element) -> dict[str, str]:
-    live_monitoring = ensure_live_monitoring_node(index_node)
     config = dict(LIVE_MONITORING_DEFAULTS)
+    live_monitoring = index_node.find("live_monitoring")
+    if live_monitoring is None:
+        return config
     for field in config:
         config[field] = (live_monitoring.findtext(field) or "").strip()
     return config
@@ -307,8 +310,14 @@ def update_live_monitoring_config(
     if index_node is None:
         raise RuntimeError("Eintrag wurde in config/stock_categories/stock_categories.xml nicht gefunden.")
 
-    live_monitoring = ensure_live_monitoring_node(index_node)
     current = read_live_monitoring_node_config(index_node)
+    current_entry = {
+        "category": category,
+        "subcategory": subcategory,
+        "query": query,
+        "live_monitoring": current,
+    }
+    current = dict(apply_price_alert_settings(current_entry).get("live_monitoring", current))
     normalized_updates: dict[str, str] = {}
 
     for field, value in updates.items():
@@ -329,11 +338,8 @@ def update_live_monitoring_config(
         normalize_condition_value(merged.get("condition"))
         normalize_interval_min_value(merged.get("interval_min"))
 
-    for field, value in merged.items():
-        ensure_text_child(live_monitoring, field).text = value
-
-    backup_path = save_xml_tree(tree, xml_path)
-    return backup_path, merged
+    settings_path = upsert_price_alert(category, subcategory, query, merged, LIVE_SETTINGS_PATH)
+    return settings_path, merged
 
 
 def should_check(item: MonitorItem, last_checked: dict[str, datetime], now: datetime) -> bool:

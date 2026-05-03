@@ -21,6 +21,7 @@ Ausgefuehrte Aufgaben:
 - Python-Version pruefen
 - `.venv` erstellen, falls nicht vorhanden
 - `config/app_config.json` aus `config/app_config.example.json` ableiten
+- `config/live_settings.xml` fuer lokale Preis-Alarme anlegen
 - Arbeitsverzeichnisse und Laufzeitdateien anlegen
 - Python-Abhaengigkeiten aus `requirements.txt` installieren
 

@@ -6,7 +6,7 @@ Dieses Repository enthaelt den Haupt-Bot (`telegram_bot.py`), den Support-Bot (`
 
 - `telegram_bot.py`: Haupt-Bot (Market Brief, Auto-Jobs, Bedienung)
 - `support_bot.py`: Monitoring/Support (Heartbeat, Fehler-Handling)
-- `live_monitoring_bot.py`: eigener Telegram-Bot fuer Live-Preisalarme aus `stock_categories.xml`
+- `live_monitoring_bot.py`: eigener Telegram-Bot fuer Live-Preisalarme aus `config/live_settings.xml`
 - `bot_monitoring.py`: Prozesssteuerung, Locking, Event-Logik
 - `market_brief.py`, `batch_market_brief.py`, `price_monitor.py`: Kernlogik fuer Brief-Erzeugung und Preisregeln
 - `config/app_config.example.json`: Beispiel-Konfiguration ohne Secrets
@@ -16,6 +16,7 @@ Dieses Repository enthaelt den Haupt-Bot (`telegram_bot.py`), den Support-Bot (`
 Die folgenden Dateien sind bewusst in `.gitignore`:
 
 - `config/app_config.json` (enthaelt Tokens/Keys)
+- `config/live_settings.xml` (lokale Preis-Alarme)
 - `.env*` (falls genutzt)
 - Logs/Locks/Heartbeat/Event-Dateien
 - lokale Caches und Laufzeitdaten

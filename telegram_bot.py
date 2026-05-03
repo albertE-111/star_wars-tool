@@ -104,6 +104,8 @@ STATE_LIST_DELETE_CONFIRM = 49
 STATE_SUPPORT_MENU = 50
 STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE = 51
 STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE = 52
+STATE_MAIN_MENU = 60
+STATE_MARKETBRIEF_QUERY = 61
 CALLBACK_PREFIX_CATEGORY = "mbc:"
 CALLBACK_PREFIX_SUBCATEGORY = "mbs:"
 CALLBACK_PREFIX_ENTRY = "mbe:"
@@ -126,6 +128,7 @@ CALLBACK_PREFIX_LIST_ADD_SUBCATEGORY = "lpas:"
 CALLBACK_PREFIX_LIST_ADD_NAME = "lpan:"
 CALLBACK_PREFIX_LIST_OPTIONAL = "lpao:"
 CALLBACK_PREFIX_SUPPORT = "sup:"
+CALLBACK_PREFIX_MAIN_MENU = "mainmenu:"
 AUTO_BRIEF_JOB_NAME = "auto_market_brief"
 
 BASE_REQUIRED_STOCK_FIELDS = ["category", "subcategory", "name", "ticker", "isin", "wkn"]
@@ -404,24 +407,6 @@ def ensure_text_child(node: ElementTree.Element, tag: str) -> ElementTree.Elemen
     return child
 
 
-def ensure_default_live_monitoring_node(node: ElementTree.Element) -> ElementTree.Element:
-    live_monitoring = node.find("live_monitoring")
-    if live_monitoring is None:
-        live_monitoring = ElementTree.SubElement(node, "live_monitoring")
-
-    defaults = {
-        "enabled": "false",
-        "target_price": "",
-        "condition": "above",
-        "interval_min": "5",
-    }
-    for field, default_value in defaults.items():
-        child = ensure_text_child(live_monitoring, field)
-        if child.text is None or (field != "target_price" and not child.text.strip()):
-            child.text = default_value
-    return live_monitoring
-
-
 def find_category_node(root: ElementTree.Element, name: str) -> ElementTree.Element | None:
     for category in root.findall("category"):
         if category.attrib.get("name", "").strip() == name:
@@ -573,7 +558,6 @@ def add_stock_entry(payload: dict[str, str], xml_path: str = "config/stock_categ
     ensure_text_child(index, "wkn").text = clean_payload["wkn"]
     ensure_text_child(index, "trade_republic_aktie").text = clean_payload["trade_republic_aktie"]
     ensure_text_child(index, "trade_republic_derivate").text = clean_payload["trade_republic_derivate"]
-    ensure_default_live_monitoring_node(index)
     for field in OPTIONAL_STOCK_FIELDS:
         value = clean_payload.get(field, "")
         if value:
@@ -629,7 +613,6 @@ def update_stock_entry(
     ensure_text_child(entry_node, "wkn").text = merged["wkn"]
     ensure_text_child(entry_node, "trade_republic_aktie").text = merged["trade_republic_aktie"]
     ensure_text_child(entry_node, "trade_republic_derivate").text = merged["trade_republic_derivate"]
-    ensure_default_live_monitoring_node(entry_node)
     for field in OPTIONAL_STOCK_FIELDS:
         value = merged.get(field, "")
         child = entry_node.find(field)
@@ -950,38 +933,174 @@ async def guarded(
             await message.reply_text(f"Fehler: {exc}")
 
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE, runtime: BotRuntime) -> None:
-    await reply_long(
-        update,
-        (
-            "Telegram-Steuerung aktiv.\n\n"
-            "Market Brief:\n"
-            "/marketbrief <query> - Einzelnen Market Brief abrufen\n"
-            "/marketbrief_start - Interaktiven Batch-Start mit Auswahl ausfuehren\n\n"
-            "Auto Market Brief:\n"
-            "/autobrief - Einstellungen und Status per Buttons anzeigen\n"
-            "/autobrief_start - Interaktive Auto-Brief-Konfiguration starten\n"
-            "/autobrief_next - Naechsten geplanten Auto-Lauf anzeigen\n"
-            "/autobrief_set <start> <end> <interval_min> [news] - Zeitfenster und Intervall direkt setzen\n"
-            "/autobrief_filter [category] [subcategory] - Filter setzen oder mit leerem Aufruf loeschen\n"
-            "/autobrief_on - Automatik aktivieren\n"
-            "/autobrief_off - Automatik deaktivieren\n\n"
-            "Listenpflege:\n"
-            "/listenpflege - Aktienliste in config/stock_categories/stock_categories.xml pflegen\n\n"
-            "Zertifikate:\n"
-            "/certificate_scraper_start - Certificate Scraper interaktiv starten\n\n"
-            "Sonstiges:\n"
-            "/article_summary <url> - Artikel zusammenfassen\n"
-            "/categories - Kategorien anzeigen\n"
-            "/ping - Erreichbarkeit pruefen\n"
-            "/echo <text> - Text zurueckgeben\n"
-            "/help - Diese Uebersicht erneut anzeigen"
-        ),
+def build_main_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Einzelanalyse", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}marketbrief")],
+            [InlineKeyboardButton("Batch Market Brief", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}batch")],
+            [
+                InlineKeyboardButton("Auto-Brief", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}autobrief"),
+                InlineKeyboardButton("Listenpflege", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}listenpflege"),
+            ],
+            [
+                InlineKeyboardButton("Support-Bot", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}support"),
+                InlineKeyboardButton("Kategorien", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}categories"),
+            ],
+            [InlineKeyboardButton("Bot testen", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}ping")],
+            [InlineKeyboardButton("Schliessen", callback_data=f"{CALLBACK_PREFIX_MAIN_MENU}done")],
+        ]
     )
 
 
+async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str = "") -> int:
+    message_text = text or "Market-Brief-Bot\n\nWaehle eine Aktion:"
+    query = update.callback_query
+    message = update.effective_message
+    if query is not None:
+        await query.edit_message_text(message_text, reply_markup=build_main_menu_keyboard())
+    elif message is not None:
+        await message.reply_text(message_text, reply_markup=build_main_menu_keyboard())
+    return STATE_MAIN_MENU
+
+
+def format_categories_text(mapping: dict[str, list[str]]) -> str:
+    lines = ["Kategorien:"]
+    for category, subcategories in mapping.items():
+        lines.append(f"- {category}")
+        for subcategory in subcategories:
+            lines.append(f"  - {subcategory}")
+    return "\n".join(lines)
+
+
+async def marketbrief_menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE, runtime: BotRuntime) -> int:
+    return await show_main_menu(update, context)
+
+
+async def marketbrief_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    if query is None:
+        return STATE_MAIN_MENU
+    await query.answer()
+    action = query.data.removeprefix(CALLBACK_PREFIX_MAIN_MENU)
+    runtime: BotRuntime = context.application.bot_data["runtime"]
+
+    if action == "done":
+        await query.edit_message_text("Market-Brief-Menue geschlossen.")
+        return ConversationHandler.END
+
+    if action == "ping":
+        await query.edit_message_text("pong", reply_markup=build_main_menu_keyboard())
+        return STATE_MAIN_MENU
+
+    if action == "categories":
+        mapping = await run_blocking(load_subcategories)
+        await query.edit_message_text(format_categories_text(mapping), reply_markup=build_main_menu_keyboard())
+        return STATE_MAIN_MENU
+
+    if action == "marketbrief":
+        await query.edit_message_text("Name, Ticker, ISIN oder WKN eingeben:")
+        if query.message is not None:
+            await query.message.reply_text("Market-Brief Query:", reply_markup=build_text_navigation_keyboard())
+        return STATE_MARKETBRIEF_QUERY
+
+    if action == "batch":
+        categories = await run_blocking(load_categories)
+        context.user_data["batch_categories"] = categories
+        context.user_data["batch_selected_queries"] = set()
+        await query.edit_message_text(
+            "Batch Market Brief starten.\nKategorie waehlen:",
+            reply_markup=build_choice_keyboard(categories, CALLBACK_PREFIX_CATEGORY),
+        )
+        return STATE_BATCH_CATEGORY
+
+    if action == "autobrief":
+        context.user_data["auto_categories"] = await run_blocking(load_categories)
+        context.user_data["auto_subcategories"] = await run_blocking(load_subcategories)
+        if query.message is not None:
+            await show_auto_brief_menu(query.message, runtime)
+        return STATE_AUTO_MENU
+
+    if action == "listenpflege":
+        cleanup_listenpflege_context(context)
+        context.user_data["list_categories"] = await run_blocking(load_categories)
+        context.user_data["list_subcategories"] = await run_blocking(load_subcategories)
+        if query.message is not None:
+            await show_listenpflege_action_menu(query.message)
+        return STATE_LIST_ACTION
+
+    if action == "support":
+        await query.edit_message_text(
+            build_support_bot_menu_text(),
+            reply_markup=build_support_bot_menu_keyboard(),
+        )
+        return STATE_SUPPORT_MENU
+
+    await query.edit_message_text("Ungueltige Auswahl.", reply_markup=build_main_menu_keyboard())
+    return STATE_MAIN_MENU
+
+
+async def marketbrief_menu_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    message = update.effective_message
+    if message is None:
+        return STATE_MARKETBRIEF_QUERY
+    nav = listenpflege_text_nav_choice(message)
+    if nav == "cancel":
+        await message.reply_text("Market Brief abgebrochen.", reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+    if nav == "back":
+        await message.reply_text("Zurueck zum Hauptmenue.", reply_markup=ReplyKeyboardRemove())
+        await show_main_menu(update, context)
+        return STATE_MAIN_MENU
+
+    query_text = (message.text or "").strip()
+    if not query_text:
+        await message.reply_text("Bitte Name, Ticker, ISIN oder WKN eingeben.", reply_markup=build_text_navigation_keyboard())
+        return STATE_MARKETBRIEF_QUERY
+
+    runtime: BotRuntime = context.application.bot_data["runtime"]
+    started_at = datetime.now()
+    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    try:
+        entry = await run_blocking(load_index_entry, "config/stock_categories/stock_categories.xml", query_text)
+        data = await run_blocking(fetch_market_brief, entry, True, runtime.gemini_model)
+    except Exception as exc:
+        await message.reply_text(f"Market Brief fehlgeschlagen: {exc}", reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+
+    elapsed_seconds = (datetime.now() - started_at).total_seconds()
+    await message.reply_text("Market Brief fertig.", reply_markup=ReplyKeyboardRemove())
+    await reply_long(update, format_market_brief(data) + f"\n\nErstellungsdauer: {elapsed_seconds:.1f} Sekunden")
+    return ConversationHandler.END
+
+
+async def main_menu_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    for key in [
+        "batch_category",
+        "batch_subcategory",
+        "batch_entry_queries",
+        "batch_selected_queries",
+        "batch_send_full_result",
+        "batch_with_news_summary",
+        "batch_categories",
+        "batch_subcategories",
+        "batch_subcategory_options",
+        "batch_entry_options",
+    ]:
+        context.user_data.pop(key, None)
+    cleanup_autobrief_context(context)
+    cleanup_listenpflege_context(context)
+    message = update.effective_message
+    if message is not None:
+        await message.reply_text("Market-Brief-Menue abgebrochen.", reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE, runtime: BotRuntime) -> None:
+    await show_main_menu(update, context)
+
+
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE, runtime: BotRuntime) -> None:
-    await start_command(update, context, runtime)
+    await show_main_menu(update, context)
 
 
 async def ping_command(update: Update, context: ContextTypes.DEFAULT_TYPE, runtime: BotRuntime) -> None:
@@ -3408,11 +3527,7 @@ def wrap(
 async def post_init(application: Application) -> None:
     await application.bot.set_my_commands(
         [
-            BotCommand("marketbrief_start", "Batch Market Brief mit Auswahl starten"),
-            BotCommand("autobrief", "Auto Market Brief Status"),
-            BotCommand("supportbot", "Support-Bot Status und Steuerung"),
-            BotCommand("listenpflege", "Aktienliste pflegen"),
-            BotCommand("start", "Bot starten"),
+            BotCommand("marketbrief_menu", "Market-Brief-Menue oeffnen"),
         ]
     )
 
@@ -3432,8 +3547,6 @@ def build_application() -> Application:
     application.bot_data["runtime"] = runtime
     configure_auto_brief_job(application, runtime)
 
-    application.add_handler(CommandHandler("start", wrap(start_command)))
-    application.add_handler(CommandHandler("help", wrap(help_command)))
     application.add_handler(CommandHandler("ping", wrap(ping_command)))
     application.add_handler(CommandHandler("categories", wrap(categories_command)))
     application.add_handler(CommandHandler("marketbrief", wrap(marketbrief_command)))
@@ -3444,6 +3557,141 @@ def build_application() -> Application:
     application.add_handler(CommandHandler("autobrief_off", wrap(autobrief_off_command)))
     application.add_handler(CommandHandler("article_summary", wrap(article_summary_command)))
     application.add_handler(CommandHandler("echo", wrap(echo_command)))
+    application.add_handler(
+        ConversationHandler(
+            entry_points=[
+                CommandHandler("marketbrief_menu", wrap(marketbrief_menu_command)),
+                CommandHandler("start", wrap(start_command)),
+                CommandHandler("help", wrap(help_command)),
+            ],
+            states={
+                STATE_MAIN_MENU: [
+                    CallbackQueryHandler(marketbrief_menu_callback, pattern=f"^{CALLBACK_PREFIX_MAIN_MENU}")
+                ],
+                STATE_MARKETBRIEF_QUERY: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, marketbrief_menu_query)
+                ],
+                STATE_SUPPORT_MENU: [
+                    CallbackQueryHandler(supportbot_menu, pattern=f"^{CALLBACK_PREFIX_SUPPORT}")
+                ],
+                STATE_LIST_ACTION: [
+                    CallbackQueryHandler(listenpflege_action, pattern=f"^{CALLBACK_PREFIX_LIST_ACTION}")
+                ],
+                STATE_LIST_ADD_CATEGORY: [
+                    CallbackQueryHandler(listenpflege_add_category, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_CATEGORY}"),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_category),
+                ],
+                STATE_LIST_ADD_SUBCATEGORY: [
+                    CallbackQueryHandler(
+                        listenpflege_add_subcategory,
+                        pattern=f"^{CALLBACK_PREFIX_LIST_ADD_SUBCATEGORY}",
+                    ),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_subcategory),
+                ],
+                STATE_LIST_ADD_NAME: [
+                    CallbackQueryHandler(listenpflege_add_name, pattern=f"^{CALLBACK_PREFIX_LIST_ADD_NAME}"),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_name),
+                ],
+                STATE_LIST_ADD_TICKER: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_ticker)
+                ],
+                STATE_LIST_ADD_ISIN: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_isin)
+                ],
+                STATE_LIST_ADD_WKN: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_wkn)
+                ],
+                STATE_LIST_ADD_TRADE_REPUBLIC_AKTIE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_trade_republic_aktie)
+                ],
+                STATE_LIST_ADD_TRADE_REPUBLIC_DERIVATE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_trade_republic_derivate)
+                ],
+                STATE_LIST_ADD_OPTIONAL_MENU: [
+                    CallbackQueryHandler(listenpflege_add_optional_menu, pattern=f"^{CALLBACK_PREFIX_LIST_OPTIONAL}")
+                ],
+                STATE_LIST_ADD_OPTIONAL_VALUE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_add_optional_value)
+                ],
+                STATE_LIST_ADD_CONFIRM: [
+                    CallbackQueryHandler(listenpflege_add_confirm, pattern=f"^{CALLBACK_PREFIX_LIST_CONFIRM}")
+                ],
+                STATE_LIST_EDIT_CATEGORY: [
+                    CallbackQueryHandler(listenpflege_pick_category, pattern=f"^{CALLBACK_PREFIX_LIST_CATEGORY}")
+                ],
+                STATE_LIST_EDIT_SUBCATEGORY: [
+                    CallbackQueryHandler(
+                        listenpflege_pick_subcategory,
+                        pattern=f"^{CALLBACK_PREFIX_LIST_SUBCATEGORY}",
+                    )
+                ],
+                STATE_LIST_EDIT_ENTRY: [
+                    CallbackQueryHandler(listenpflege_pick_entry, pattern=f"^{CALLBACK_PREFIX_LIST_ENTRY}")
+                ],
+                STATE_LIST_EDIT_FIELD: [
+                    CallbackQueryHandler(listenpflege_edit_field, pattern=f"^{CALLBACK_PREFIX_LIST_FIELD}")
+                ],
+                STATE_LIST_EDIT_VALUE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, listenpflege_edit_value)
+                ],
+                STATE_LIST_EDIT_CONFIRM: [
+                    CallbackQueryHandler(listenpflege_edit_confirm, pattern=f"^{CALLBACK_PREFIX_LIST_CONFIRM}")
+                ],
+                STATE_LIST_DELETE_CATEGORY: [
+                    CallbackQueryHandler(listenpflege_pick_category, pattern=f"^{CALLBACK_PREFIX_LIST_CATEGORY}")
+                ],
+                STATE_LIST_DELETE_SUBCATEGORY: [
+                    CallbackQueryHandler(
+                        listenpflege_pick_subcategory,
+                        pattern=f"^{CALLBACK_PREFIX_LIST_SUBCATEGORY}",
+                    )
+                ],
+                STATE_LIST_DELETE_ENTRY: [
+                    CallbackQueryHandler(listenpflege_pick_entry, pattern=f"^{CALLBACK_PREFIX_LIST_ENTRY}")
+                ],
+                STATE_LIST_DELETE_CONFIRM: [
+                    CallbackQueryHandler(listenpflege_delete_confirm, pattern=f"^{CALLBACK_PREFIX_LIST_CONFIRM}")
+                ],
+                STATE_BATCH_CATEGORY: [
+                    CallbackQueryHandler(marketbrief_start_category, pattern=f"^{CALLBACK_PREFIX_CATEGORY}")
+                ],
+                STATE_BATCH_SUBCATEGORY: [
+                    CallbackQueryHandler(marketbrief_start_subcategory, pattern=f"^{CALLBACK_PREFIX_SUBCATEGORY}")
+                ],
+                STATE_BATCH_ENTRY: [
+                    CallbackQueryHandler(marketbrief_start_entry, pattern=f"^{CALLBACK_PREFIX_ENTRY}")
+                ],
+                STATE_BATCH_SELECTION_MENU: [
+                    CallbackQueryHandler(marketbrief_start_selection_menu, pattern=f"^{CALLBACK_PREFIX_BATCH_SELECT}")
+                ],
+                STATE_BATCH_NEWS: [
+                    CallbackQueryHandler(marketbrief_start_news, pattern=f"^{CALLBACK_PREFIX_NEWS}")
+                ],
+                STATE_BATCH_RESULT_MODE: [
+                    CallbackQueryHandler(marketbrief_start_result_mode, pattern=f"^{CALLBACK_PREFIX_BATCH_RESULT}")
+                ],
+                STATE_AUTO_MENU: [
+                    CallbackQueryHandler(autobrief_start_menu, pattern=f"^{CALLBACK_PREFIX_AUTO_MENU}")
+                ],
+                STATE_AUTO_CATEGORY: [
+                    CallbackQueryHandler(autobrief_start_category, pattern=f"^{CALLBACK_PREFIX_AUTO_CATEGORY}")
+                ],
+                STATE_AUTO_SUBCATEGORY: [
+                    CallbackQueryHandler(autobrief_start_subcategory, pattern=f"^{CALLBACK_PREFIX_AUTO_SUBCATEGORY}")
+                ],
+                STATE_AUTO_INTERVAL: [
+                    CallbackQueryHandler(autobrief_start_interval, pattern=f"^{CALLBACK_PREFIX_AUTO_INTERVAL}")
+                ],
+                STATE_AUTO_WINDOW_FROM: [
+                    CallbackQueryHandler(autobrief_start_window_from, pattern=f"^{CALLBACK_PREFIX_AUTO_WINDOW}")
+                ],
+                STATE_AUTO_WINDOW_TO: [
+                    CallbackQueryHandler(autobrief_start_window_to, pattern=f"^{CALLBACK_PREFIX_AUTO_WINDOW}")
+                ],
+            },
+            fallbacks=[CommandHandler("cancel", main_menu_cancel)],
+        )
+    )
     application.add_handler(
         ConversationHandler(
             entry_points=[CommandHandler("supportbot", wrap(supportbot_command))],
