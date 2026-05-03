@@ -1,0 +1,649 @@
+<?xml version='1.0' encoding='utf-8'?>
+<stockCategories>
+  <category name="Indizes">
+    <subcategory name="Laender-Indizes">
+      <index>
+        <name>Nasdaq 100</name>
+        <land>USA</land>
+        <ticker>^NDX</ticker>
+        <ticker_usa>^NDX</ticker_usa>
+        <isin>US6311011026</isin>
+        <wkn>A0AE1X</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>S&amp;P 500</name>
+        <land>USA</land>
+        <ticker>^GSPC</ticker>
+        <ticker_usa>^GSPC</ticker_usa>
+        <isin>US78378X1072</isin>
+        <wkn>A0AET0</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Dow Jones</name>
+        <land>USA</land>
+        <ticker>^DJI</ticker>
+        <ticker_usa>^DJI</ticker_usa>
+        <isin>US2605661048</isin>
+        <wkn>969420</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Russell 2000</name>
+        <land>USA</land>
+        <ticker>^RUT</ticker>
+        <ticker_usa>^RUT</ticker_usa>
+        <isin>US7827001089</isin>
+        <wkn>A1EZTD</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>DAX 40</name>
+        <land>Deutschland</land>
+        <ticker>^GDAXI</ticker>
+        <ticker_eu>^GDAXI</ticker_eu>
+        <isin>DE0008469008</isin>
+        <wkn>846900</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>CAC 40</name>
+        <land>Frankreich</land>
+        <ticker>^FCHI</ticker>
+        <ticker_eu>^FCHI</ticker_eu>
+        <isin>FR0003500008</isin>
+        <wkn>969400</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>FTSE 100</name>
+        <land>UK</land>
+        <ticker>^FTSE</ticker>
+        <ticker_eu>^FTSE</ticker_eu>
+        <isin>GB0001383545</isin>
+        <wkn>969378</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>AEX</name>
+        <land>Niederlande</land>
+        <ticker>^AEX</ticker>
+        <ticker_eu>^AEX</ticker_eu>
+        <isin>NL0000000107</isin>
+        <wkn>969241</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Nikkei 225</name>
+        <land>Japan</land>
+        <ticker>^N225</ticker>
+        <ticker_apac>^N225</ticker_apac>
+        <isin>JP9010C00002</isin>
+        <wkn>A1RRF6</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Hang Seng</name>
+        <land>Hongkong</land>
+        <ticker>^HSI</ticker>
+        <ticker_apac>^HSI</ticker_apac>
+        <isin>HK0000004322</isin>
+        <wkn>145733</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Sektor-Indizes">
+      <index>
+        <name>MSCI World Information Tech</name>
+        <ticker>XDWT.DE</ticker>
+        <ticker_eu>XDWT.DE</ticker_eu>
+        <isin>EU000A2G9V11</isin>
+        <wkn>A2G9V1</wkn>
+        <tag>Technologie</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>EURO STOXX Banks</name>
+        <ticker>LYBK.DE</ticker>
+        <ticker_eu>LYBK.DE</ticker_eu>
+        <isin>EU0009658426</isin>
+        <wkn>965842</wkn>
+        <tag>Banking</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>MSCI World Energy</name>
+        <ticker>5MVW.DE</ticker>
+        <ticker_eu>5MVW.DE</ticker_eu>
+        <isin>EU000A2G9UZ5</isin>
+        <wkn>A2G9UZ</wkn>
+        <tag>Energy &amp; Oil</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>MSCI World Health Care</name>
+        <ticker>LYPE.DE</ticker>
+        <ticker_eu>LYPE.DE</ticker_eu>
+        <isin>EU000A2G9V03</isin>
+        <wkn>A2G9V0</wkn>
+        <tag>Healthcare</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>STOXX Europe Luxury 10</name>
+        <ticker>EXH7.DE</ticker>
+        <ticker_eu>EXH7.DE</ticker_eu>
+        <isin>CH1187488874</isin>
+        <wkn>A3DL3G</wkn>
+        <tag>Luxury Goods</tag>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Aktien">
+    <subcategory name="Big Tech &amp; Plattformen">
+      <index>
+        <name>Apple</name>
+        <ticker>AAPL</ticker>
+        <ticker_usa>AAPL</ticker_usa>
+        <isin>US0378331005</isin>
+        <wkn>865985</wkn>
+        <description>Oft stabiler, aber bei iPhone-Releases oder KI-Updates sehr trendstark.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Microsoft</name>
+        <ticker>MSFT</ticker>
+        <ticker_usa>MSFT</ticker_usa>
+        <isin>US5949181045</isin>
+        <wkn>870747</wkn>
+        <description>Der Profiteur von Software-KI (Copilot).</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Alphabet</name>
+        <ticker>GOOGL</ticker>
+        <ticker_usa>GOOGL</ticker_usa>
+        <isin>US02079K1079</isin>
+        <wkn>A14Y6H</wkn>
+        <description>Google. Oft fuer Short-Sells interessant, wenn sie den KI-Anschluss verlieren.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Amazon</name>
+        <ticker>AMZN</ticker>
+        <ticker_usa>AMZN</ticker_usa>
+        <isin>US0231351067</isin>
+        <wkn>906866</wkn>
+        <description>Wichtig fuer Cloud (AWS) und Konsumdaten.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Meta Platforms</name>
+        <ticker>META</ticker>
+        <ticker_usa>META</ticker_usa>
+        <isin>US30303M1027</isin>
+        <wkn>A1JWVX</wkn>
+        <description>Reagiert heftig auf Werbeeinnahmen und VR-News.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Netflix</name>
+        <ticker>NFLX</ticker>
+        <ticker_usa>NFLX</ticker_usa>
+        <isin>US64110L1061</isin>
+        <wkn>552484</wkn>
+        <description>Sehr volatil nach Abonnentenzahlen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Tesla</name>
+        <ticker>TSLA</ticker>
+        <ticker_usa>TSLA</ticker_usa>
+        <isin>US88160R1014</isin>
+        <wkn>A1CX3T</wkn>
+        <description>Die "Trader-Aktie" schlechthin. Reagiert extrem auf News von Elon Musk.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Halbleiter &amp; Netzwerktechnik">
+      <index>
+        <name>Nvidia</name>
+        <ticker>NVDA</ticker>
+        <ticker_usa>NVDA</ticker_usa>
+        <isin>US67066G1040</isin>
+        <wkn>918422</wkn>
+        <description>Das Herz der KI. Extrem volatil, perfekt fuer Hebel-Trades.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>AMD</name>
+        <ticker>AMD</ticker>
+        <ticker_usa>AMD</ticker_usa>
+        <isin>US0079031078</isin>
+        <wkn>863186</wkn>
+        <description>Die aggressive Alternative zu Nvidia. Schwankt oft noch staerker.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Broadcom</name>
+        <ticker>AVGO</ticker>
+        <ticker_usa>AVGO</ticker_usa>
+        <isin>US11135F1012</isin>
+        <wkn>A2JG9Z</wkn>
+        <description>Der "stille Riese" der Vernetzung.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Intel Corp.</name>
+        <ticker>INTC</ticker>
+        <isin>US4581401001</isin>
+        <wkn>855681</wkn>
+        <ticker_usa>INTC</ticker_usa>
+        <ticker_eu>INL.DE</ticker_eu>
+        <description>Intel ist einer der weltweit grÃƒÂ¶ÃƒÅ¸ten Halbleiterhersteller und das Urgestein der Computerchip-Industrie.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Arm Holdings</name>
+        <ticker>ARM</ticker>
+        <ticker_usa>ARM</ticker_usa>
+        <isin>US0420682058</isin>
+        <wkn>A3EUCD</wkn>
+        <description>Chip-Architektur mit oft massiven Kursspruengen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>SunDisk</name>
+        <ticker>SNDK</ticker>
+        <ticker_usa>SNDK</ticker_usa>
+        <isin>US80004C2008</isin>
+        <wkn>A411ZM</wkn>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="KI-Infrastruktur &amp; Datenplattformen">
+      <index>
+        <name>Super Micro Computer</name>
+        <ticker>SMCI</ticker>
+        <ticker_usa>SMCI</ticker_usa>
+        <isin>US86800U3023</isin>
+        <wkn>A40MRM</wkn>
+        <description>Extrem hohe Volatilitaet. Baut die Server-Schraenke fuer KI.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Vertiv Holdings</name>
+        <ticker>VRT</ticker>
+        <ticker_usa>VRT</ticker_usa>
+        <isin>US92537N1081</isin>
+        <wkn>A2PZ5A</wkn>
+        <description>Spezialist fuer Kuehlung von Rechenzentren. KI-Infrastruktur braucht Strom und Thermomanagement.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Nebius Group N.V.</name>
+        <ticker>NBIS</ticker>
+        <ticker_eu>YDX.F</ticker_eu>
+        <ticker_usa>NBIS</ticker_usa>
+        <isin>NL0009805522</isin>
+        <wkn>A1JGSL</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Palantir</name>
+        <ticker>PLTR</ticker>
+        <ticker_eu>PTX.F</ticker_eu>
+        <ticker_usa>PLTR</ticker_usa>
+        <isin>US69608A1088</isin>
+        <wkn>A2QA4J</wkn>
+        <description>Datenanalyse fuer Militaer und Firmen. Kult-Aktie bei Tradern.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Cybersecurity">
+      <index>
+        <name>CrowdStrike</name>
+        <ticker>CRWD</ticker>
+        <ticker_eu>45C.F</ticker_eu>
+        <ticker_usa>CRWD</ticker_usa>
+        <isin>US22788C1053</isin>
+        <wkn>A2PK2R</wkn>
+        <description>Marktfuehrer bei Cloud-Sicherheit.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Palo Alto Networks</name>
+        <ticker>PANW</ticker>
+        <ticker_usa>PANW</ticker_usa>
+        <isin>US6974351057</isin>
+        <wkn>A1JZ0Q</wkn>
+        <description>Der groesste Player im Bereich Firewalls.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Zscaler</name>
+        <ticker>ZS</ticker>
+        <ticker_usa>ZS</ticker_usa>
+        <isin>US98980G1022</isin>
+        <wkn>A2JF28</wkn>
+        <description>Spezialist fuer sicheren Fernzugriff.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Telekommunikation">
+      <index>
+        <name>Deutsche Telekom AG</name>
+        <ticker>DTE.DE</ticker>
+        <isin>DE0005557508</isin>
+        <wkn>555750</wkn>
+        <ticker_eu>DTE.DE</ticker_eu>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>T-Mobile US Inc</name>
+        <ticker>TMUS</ticker>
+        <isin>US8725901040</isin>
+        <wkn>A1T7LU</wkn>
+        <ticker_usa>TMUS</ticker_usa>
+        <ticker_eu>TM5.DE</ticker_eu>
+        <description>T-Mobile US ist der zweitgrÃƒÂ¶ÃƒÅ¸te Mobilfunkanbieter in den USA und das Ã¢â‚¬Å¾Wachstums-Powerhouse" im Konzernverbund der Deutschen Telekom, die mit etwa 53 % die Mehrheit hÃƒÂ¤lt.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Erneuerbare Energien &amp; Speicher">
+      <index>
+        <name>Enphase Energy</name>
+        <ticker>ENPH</ticker>
+        <ticker_usa>ENPH</ticker_usa>
+        <isin>US29355A1079</isin>
+        <wkn>A1JC82</wkn>
+        <description>Solar-Wechselrichter. Sehr volatil bei Zinsaenderungen.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>First Solar</name>
+        <ticker>FSLR</ticker>
+        <ticker_usa>FSLR</ticker_usa>
+        <isin>US3364331070</isin>
+        <wkn>A0LEKM</wkn>
+        <description>US-Marktfuehrer fuer Solarpanels.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>QuantumScape</name>
+        <ticker>QS</ticker>
+        <ticker_usa>QS</ticker_usa>
+        <isin>US74767V1098</isin>
+        <wkn>A2QJX9</wkn>
+        <description>Wette auf die Feststoffbatterie. Extrem hohes Risiko.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Banken">
+      <index>
+        <name>TBC Bank Group</name>
+        <ticker>TBCG</ticker>
+        <ticker_eu>TBCG.L</ticker_eu>
+        <ticker_usa>TBCG</ticker_usa>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Rohstoffe">
+    <subcategory name="Edelmetalle">
+      <index>
+        <name>Gold</name>
+        <ticker>GC=F</ticker>
+        <ticker_usa>GC=F</ticker_usa>
+        <description>Gold-Futures als Yahoo-kompatibler Proxy fuer den aktuellen Goldpreis.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Silber</name>
+        <ticker>SI=F</ticker>
+        <ticker_usa>SI=F</ticker_usa>
+        <description>Silber-Futures als Yahoo-kompatibler Proxy fuer den aktuellen Silberpreis.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Energie">
+      <index>
+        <name>Brent Crude</name>
+        <ticker>BZ=F</ticker>
+        <ticker_usa>BZ=F</ticker_usa>
+        <description>Das Oel aus der Nordsee. Wichtig fuer Europa.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>WTI</name>
+        <ticker>CL=F</ticker>
+        <ticker_usa>CL=F</ticker_usa>
+        <description>West Texas Intermediate. Das US-Leichtoel.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Kupfer &amp; Bergbau">
+      <index>
+        <name>Freeport-McMoRan</name>
+        <ticker>FCX</ticker>
+        <ticker_eu>FPMB.F</ticker_eu>
+        <ticker_usa>FCX</ticker_usa>
+        <isin>US35671D8570</isin>
+        <wkn>896476</wkn>
+        <tag>Kupfer</tag>
+        <description>Einer der groessten Kupferproduzenten.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Rio Tinto</name>
+        <ticker>RIO</ticker>
+        <ticker_usa>RIO</ticker_usa>
+        <ticker_eu>RIO.L</ticker_eu>
+        <isin>GB0007188757</isin>
+        <wkn>852147</wkn>
+        <tag>Kupfer</tag>
+        <description>Gigantischer Bergbaukonzern mit Kupfer und Eisenerz.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Southern Copper</name>
+        <ticker>SCCO</ticker>
+        <ticker_usa>SCCO</ticker_usa>
+        <isin>US84265V1052</isin>
+        <wkn>A0HG1Y</wkn>
+        <tag>Kupfer</tag>
+        <description>Sitzt auf riesigen Kupferreserven in Peru und Mexiko.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Lithium &amp; Batteriematerialien">
+      <index>
+        <name>Albemarle</name>
+        <ticker>ALB</ticker>
+        <ticker_eu>AMC.F</ticker_eu>
+        <ticker_usa>ALB</ticker_usa>
+        <isin>US0126531013</isin>
+        <wkn>890167</wkn>
+        <tag>Lithium</tag>
+        <description>Weltmarktfuehrer bei Lithium fuer Batterien.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>SQM</name>
+        <ticker>SQM</ticker>
+        <ticker_eu>QYM.F</ticker_eu>
+        <ticker_usa>SQM</ticker_usa>
+        <isin>US8336351056</isin>
+        <wkn>895007</wkn>
+        <tag>Lithium</tag>
+        <description>Grosser Lithium-Player aus Chile.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Arcadium Lithium</name>
+        <ticker>ALTM</ticker>
+        <ticker_usa>ALTM</ticker_usa>
+        <isin>AU0000305724</isin>
+        <wkn>A3E13Q</wkn>
+        <tag>Lithium</tag>
+        <description>Neuer grosser Zusammenschluss der Branche. Uebernahme durch Rio Tinto am 6. Maerz 2025 abgeschlossen, daher kein aktueller Boersenkurs mehr verfuegbar.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Industrie &amp; Verteidigung">
+    <subcategory name="Luftfahrt &amp; Verteidigung">
+      <index>
+        <name>Mitsubishi Heavy Industries</name>
+        <ticker>7011</ticker>
+        <isin>JP3900000005</isin>
+        <wkn>853314</wkn>
+        <ticker_eu>MHI.DE</ticker_eu>
+        <ticker_apac>7011.T</ticker_apac>
+        <description>Mitsubishi Heavy Industries ist das industrielle Herz der Mitsubishi-Gruppe und ein globaler Gigant im Bereich Schwerindustrie.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Stammdaten IHI</name>
+        <ticker>7013</ticker>
+        <isin>JP3134800006</isin>
+        <wkn>854347</wkn>
+        <ticker_eu>IWJ.DE</ticker_eu>
+        <ticker_apac>7013.T</ticker_apac>
+        <land>Japan</land>
+        <description>IHI Corporation (frÃƒÂ¼her Ishikawajima-Harima Heavy Industries) ist ein japanischer Industriegigant mit Fokus auf Technologie und Maschinenbau.</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+      <index>
+        <name>Subaru Corporation</name>
+        <ticker>7270</ticker>
+        <isin>JP3814800003</isin>
+        <wkn>855686</wkn>
+        <ticker_eu>FHI.DE</ticker_eu>
+        <ticker_apac>7270.T</ticker_apac>
+        <description>Subaru ist weit mehr als nur "Allrad-Autos". Die Sparte Subaru Aerospace ist ein tragender Pfeiler der japanischen Verteidigungsstrategie</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Marine &amp; Schwerindustrie">
+      <index>
+        <name>Kawasaki Heavy</name>
+        <ticker>7012</ticker>
+        <isin>JP3224200000</isin>
+        <wkn>858920</wkn>
+        <ticker_eu>KHE.DE</ticker_eu>
+        <ticker_apac>7012.T</ticker_apac>
+        <tag>Japan</tag>
+        <description>Kawasaki Heavy Industries ist einer der technologisch vielseitigsten Konzerne Japans. WÃƒÂ¤hrend die Motorradsparte (Kawasaki Motors) nur einen Teil des GeschÃƒÂ¤fts ausmacht, liegen die</description>
+        <trade_republic_aktie>unbekannt</trade_republic_aktie>
+        <trade_republic_derivate>unbekannt</trade_republic_derivate>
+      </index>
+    </subcategory>
+    <subcategory name="Industrieautomation">
+      <index>
+        <name>Siemens AG</name>
+        <ticker>SIE</ticker>
+        <isin>DE0001965002</isin>
+        <wkn>723610</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <ticker_usa>SIEGY</ticker_usa>
+        <ticker_eu>SIE.DE</ticker_eu>
+        <land>Deutschland</land>
+        <tag>bluechip</tag>
+        <description>Siemens ist ein weltweit führendes Technologieunternehmen, das sich auf die Bereiche Industrie, Infrastruktur, Transport und Gesundheitswesen konzentriert.</description>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Software &amp; IT-Services">
+    <subcategory name="Unternehmenssoftware">
+      <index>
+        <name>SAP SE</name>
+        <ticker>SAP</ticker>
+        <isin>DE0007164600</isin>
+        <wkn>716460</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <ticker_eu>SAP.DE</ticker_eu>
+        <land>Deutschland</land>
+        <tag>SAP</tag>
+        <description>SAP ist ein weltweit führender Anbieter von Unternehmenssoftware.</description>
+        <ticker_usa>SAP</ticker_usa>
+      </index>
+    </subcategory>
+  </category>
+  <category name="Gesundheit">
+    <subcategory name="Pharma &amp; Life Sciences">
+      <index>
+        <name>Bayer AG</name>
+        <ticker>BAYN</ticker>
+        <isin>DE000BAY0017</isin>
+        <wkn>BAY001</wkn>
+        <trade_republic_aktie>ja</trade_republic_aktie>
+        <trade_republic_derivate>ja</trade_republic_derivate>
+        <ticker_usa>BAYRY</ticker_usa>
+        <ticker_eu>BAYN.DE</ticker_eu>
+        <ticker_apac>BAYER.BD</ticker_apac>
+        <land>Deutschland</land>
+        <tag>pharma</tag>
+        <description>Bayer ist ein multinationales Unternehmen mit Kernkompetenzen in den Bereichen Gesundheitswesen und Agrarwirtschaft.</description>
+      </index>
+    </subcategory>
+  </category>
+</stockCategories>
